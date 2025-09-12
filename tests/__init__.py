@@ -1,0 +1,1 @@
+"""Tests package for the solar weather API."""
