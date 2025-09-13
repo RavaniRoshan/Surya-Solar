@@ -13,9 +13,9 @@ sqlalchemy[asyncio]==2.0.23
 
 # ML and data processing
 transformers==4.36.0
-torch==2.1.0
-numpy==1.24.3
-pandas==2.0.3
+torch>=2.0.0
+numpy>=1.24.0
+pandas>=2.0.0
 
 # HTTP client for external APIs
 httpx==0.25.2

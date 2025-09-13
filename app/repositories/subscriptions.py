@@ -353,6 +353,33 @@ class SubscriptionsRepository(BaseRepository[UserSubscription]):
             logger.error(f"Failed to update last login: {e}")
             return False
     
+    async def get_users_with_webhooks(self) -> List[Dict[str, Any]]:
+        """
+        Get all users who have webhook URLs configured.
+        
+        Returns:
+            List of user subscription data with webhook URLs
+        """
+        try:
+            db_manager = await self._get_db_manager()
+            
+            query = """
+                SELECT user_id, tier, webhook_url, alert_thresholds
+                FROM user_subscriptions 
+                WHERE webhook_url IS NOT NULL 
+                AND webhook_url != ''
+                AND is_active = true
+                ORDER BY tier DESC, created_at ASC
+            """
+            
+            results = await db_manager.execute_query(query, fetch_all=True)
+            
+            return [dict(row) for row in results] if results else []
+            
+        except Exception as e:
+            logger.error(f"Failed to get users with webhooks: {e}")
+            return []
+    
     async def get_subscription_statistics(self) -> Dict[str, Any]:
         """
         Get subscription statistics.

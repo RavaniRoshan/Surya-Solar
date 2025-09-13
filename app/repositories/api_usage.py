@@ -207,6 +207,46 @@ class APIUsageRepository(BaseRepository[APIUsageRecord]):
             logger.error(f"Failed to get user request count: {e}")
             return 0
     
+    async def get_usage_count(
+        self, 
+        user_id: str, 
+        endpoint_pattern: Optional[str] = None,
+        hours_back: int = 1
+    ) -> int:
+        """
+        Get usage count for a user with optional endpoint filtering.
+        
+        Args:
+            user_id: User ID to count requests for
+            endpoint_pattern: Optional SQL LIKE pattern for endpoint filtering
+            hours_back: Number of hours to look back
+            
+        Returns:
+            Number of matching requests
+        """
+        try:
+            db_manager = await self._get_db_manager()
+            
+            cutoff_time = datetime.utcnow() - timedelta(hours=hours_back)
+            
+            query = """
+                SELECT COUNT(*) as count FROM api_usage 
+                WHERE user_id = $1 AND timestamp >= $2
+            """
+            params = [user_id, cutoff_time]
+            
+            if endpoint_pattern:
+                query += " AND endpoint LIKE $3"
+                params.append(endpoint_pattern)
+            
+            result = await db_manager.execute_query(query, *params, fetch_one=True)
+            
+            return result['count'] if result else 0
+            
+        except Exception as e:
+            logger.error(f"Failed to get usage count: {e}")
+            return 0
+    
     async def get_endpoint_statistics(self, hours_back: int = 24) -> List[Dict[str, Any]]:
         """
         Get statistics for all endpoints.

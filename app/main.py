@@ -93,7 +93,7 @@ def create_app() -> FastAPI:
         
         return JSONResponse(
             status_code=exc.status_code,
-            content=error_response.dict()
+            content=error_response.model_dump(mode='json')
         )
     
     # Global exception handler for unhandled exceptions
@@ -112,7 +112,7 @@ def create_app() -> FastAPI:
         
         return JSONResponse(
             status_code=500,
-            content=error_response.dict()
+            content=error_response.model_dump(mode='json')
         )
     
     # Health check endpoint
@@ -137,6 +137,14 @@ def create_app() -> FastAPI:
             "docs_url": "/docs" if settings.api.debug else None,
             "health_url": "/health"
         }
+    
+    # Include API routers
+    from app.api.alerts import router as alerts_router
+    from app.api.users import router as users_router
+    from app.api.websockets import router as websockets_router
+    app.include_router(alerts_router)
+    app.include_router(users_router)
+    app.include_router(websockets_router)
     
     return app
 
