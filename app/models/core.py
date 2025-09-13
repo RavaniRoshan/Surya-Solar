@@ -176,3 +176,60 @@ class APIUsageRecord(BaseModel):
         json_encoders = {
             datetime: lambda v: v.isoformat() if v else None
         }
+
+
+class HealthStatus(BaseModel):
+    """Basic health status response."""
+    status: str = Field(..., description="Overall health status")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    service: str = Field(..., description="Service name")
+    version: str = Field(..., description="Service version")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+
+
+class ServiceHealth(BaseModel):
+    """Individual service health status."""
+    status: str = Field(..., description="Service status: healthy, unhealthy, degraded")
+    response_time_ms: Optional[float] = Field(None, description="Response time in milliseconds")
+    last_checked: datetime = Field(default_factory=datetime.utcnow)
+    error: Optional[str] = Field(None, description="Error message if unhealthy")
+    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional service metadata")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+
+
+class SystemMetrics(BaseModel):
+    """System performance metrics."""
+    cpu: Dict[str, Any] = Field(..., description="CPU usage metrics")
+    memory: Dict[str, Any] = Field(..., description="Memory usage metrics")
+    disk: Dict[str, Any] = Field(..., description="Disk usage metrics")
+    process: Dict[str, Any] = Field(..., description="Process-specific metrics")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+
+
+class AlertMetrics(BaseModel):
+    """Alert system performance metrics."""
+    total_predictions: int = Field(..., description="Total predictions made")
+    successful_predictions: int = Field(..., description="Successful predictions")
+    failed_predictions: int = Field(..., description="Failed predictions")
+    average_inference_time_ms: float = Field(..., description="Average inference time")
+    alerts_triggered: int = Field(..., description="Total alerts triggered")
+    websocket_connections: int = Field(..., description="Active WebSocket connections")
+    last_prediction_time: Optional[datetime] = Field(None, description="Last prediction timestamp")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None
+        }

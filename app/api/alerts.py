@@ -13,122 +13,27 @@ from app.models.core import (
     SeverityLevel,
     ErrorResponse
 )
-from app.services.auth_service import get_auth_service, UserSession
+from app.services.auth_service import get_current_user, UserSession
 from app.repositories.predictions import get_predictions_repository
 from app.repositories.api_usage import get_api_usage_repository
 from app.config import get_settings
+from app.middleware.subscription import (
+    enforce_alerts_rate_limit,
+    enforce_history_rate_limit,
+    require_api_access,
+    require_enterprise_tier
+)
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/alerts", tags=["Alerts"])
 security = HTTPBearer()
-auth_service = get_auth_service()
 predictions_repo = get_predictions_repository()
 api_usage_repo = get_api_usage_repository()
 settings = get_settings()
 
 
-async def get_current_user(
-    request: Request,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-) -> UserSession:
-    """
-    Dependency to get current authenticated user.
-    
-    Args:
-        request: FastAPI request object
-        credentials: HTTP Bearer token credentials
-        
-    Returns:
-        UserSession for authenticated user
-        
-    Raises:
-        HTTPException: If authentication fails
-    """
-    try:
-        # Try JWT token first
-        user_session = await auth_service.validate_token(credentials.credentials)
-        
-        if not user_session:
-            # Try API key authentication
-            user_session = await auth_service.validate_api_key(credentials.credentials)
-        
-        if not user_session:
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid authentication credentials",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-        
-        # Log API usage
-        await _log_api_usage(
-            request=request,
-            user_session=user_session,
-            endpoint=str(request.url.path),
-            method=request.method
-        )
-        
-        return user_session
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Authentication error: {e}")
-        raise HTTPException(
-            status_code=401,
-            detail="Authentication failed",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
 
-
-async def check_rate_limits(user_session: UserSession, endpoint_type: str) -> None:
-    """
-    Check if user has exceeded rate limits for their subscription tier.
-    
-    Args:
-        user_session: Current user session
-        endpoint_type: Type of endpoint being accessed (alerts, history)
-        
-    Raises:
-        HTTPException: If rate limit exceeded
-    """
-    try:
-        tier_config = settings.subscription_tiers.get(user_session.subscription_tier, {})
-        rate_limits = tier_config.get("rate_limits", {})
-        
-        if endpoint_type not in rate_limits:
-            return  # No rate limit configured
-        
-        limit = rate_limits[endpoint_type]
-        
-        # Check usage in the last hour
-        usage_count = await api_usage_repo.get_usage_count(
-            user_id=user_session.user_id,
-            endpoint_pattern=f"%{endpoint_type}%",
-            hours_back=1
-        )
-        
-        if usage_count >= limit:
-            raise HTTPException(
-                status_code=429,
-                detail=f"Rate limit exceeded. {user_session.subscription_tier.title()} tier allows {limit} {endpoint_type} requests per hour.",
-                headers={
-                    "X-RateLimit-Limit": str(limit),
-                    "X-RateLimit-Remaining": "0",
-                    "X-RateLimit-Reset": str(int((datetime.utcnow() + timedelta(hours=1)).timestamp()))
-                }
-            )
-        
-        # Add rate limit headers
-        remaining = limit - usage_count
-        logger.info(f"Rate limit check passed: {usage_count}/{limit} for {user_session.subscription_tier} tier")
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Rate limit check failed: {e}")
-        # Don't block request if rate limit check fails
-        pass
 
 
 async def _log_api_usage(
@@ -164,7 +69,9 @@ async def _log_api_usage(
 )
 async def get_current_alert(
     request: Request,
-    user_session: UserSession = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    subscription = Depends(require_api_access),
+    rate_limit_info = Depends(enforce_alerts_rate_limit)
 ) -> CurrentAlertResponse:
     """
     Get the current solar flare alert status.
@@ -180,9 +87,6 @@ async def get_current_alert(
     - Enterprise tier: 10000 requests/hour
     """
     try:
-        # Check rate limits
-        await check_rate_limits(user_session, "alerts")
-        
         # Get current prediction
         current_prediction = await predictions_repo.get_current_prediction()
         
@@ -198,7 +102,7 @@ async def get_current_alert(
         )
         
         # Check if alert should be triggered based on user's thresholds
-        user_thresholds = getattr(user_session, 'alert_thresholds', settings.default_alert_thresholds)
+        user_thresholds = subscription.alert_thresholds or settings.default_alert_thresholds
         alert_active = current_prediction.flare_probability >= user_thresholds.get('high', 0.8)
         
         return CurrentAlertResponse(
@@ -227,7 +131,9 @@ async def get_current_alert(
 )
 async def get_alert_history(
     request: Request,
-    user_session: UserSession = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
+    subscription = Depends(require_api_access),
+    rate_limit_info = Depends(enforce_history_rate_limit),
     hours_back: int = Query(24, ge=1, le=168, description="Hours of history to retrieve (max 7 days)"),
     severity: Optional[SeverityLevel] = Query(None, description="Filter by severity level"),
     min_probability: Optional[float] = Query(None, ge=0.0, le=1.0, description="Minimum probability threshold"),
@@ -252,11 +158,8 @@ async def get_alert_history(
     - Enterprise tier: 5000 requests/hour
     """
     try:
-        # Check rate limits
-        await check_rate_limits(user_session, "history")
-        
         # Validate enterprise features
-        if hours_back > 24 and user_session.subscription_tier == "free":
+        if hours_back > 24 and subscription.tier.value == "free":
             raise HTTPException(
                 status_code=403,
                 detail="Historical data beyond 24 hours requires Pro or Enterprise subscription"
@@ -334,7 +237,9 @@ async def get_alert_history(
 )
 async def get_alert_statistics(
     request: Request,
-    user_session: UserSession = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
+    subscription = Depends(require_api_access),
+    rate_limit_info = Depends(enforce_alerts_rate_limit),
     hours_back: int = Query(24, ge=1, le=168, description="Hours to analyze (max 7 days)")
 ):
     """
@@ -345,21 +250,18 @@ async def get_alert_statistics(
     **Authentication Required**: Bearer token (JWT or API key)
     """
     try:
-        # Check rate limits
-        await check_rate_limits(user_session, "alerts")
-        
         # Basic statistics for all tiers
         stats = await predictions_repo.get_prediction_statistics(hours_back=hours_back)
         
         # Enterprise users get additional detailed statistics
-        if user_session.subscription_tier == "enterprise":
+        if subscription.tier.value == "enterprise":
             hourly_counts = await predictions_repo.get_hourly_prediction_counts(hours_back=hours_back)
             stats["hourly_breakdown"] = hourly_counts
         
         return {
             "statistics": stats,
             "time_period_hours": hours_back,
-            "subscription_tier": user_session.subscription_tier
+            "subscription_tier": subscription.tier.value
         }
         
     except HTTPException:
@@ -369,4 +271,101 @@ async def get_alert_statistics(
         raise HTTPException(
             status_code=500,
             detail="Failed to retrieve alert statistics"
+        )
+
+
+@router.get(
+    "/export/csv",
+    summary="Export Historical Data as CSV",
+    description="Export historical solar flare data as CSV file. Enterprise feature only."
+)
+async def export_alerts_csv(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    subscription = Depends(require_enterprise_tier),
+    hours_back: int = Query(168, ge=1, le=8760, description="Hours of history to export (max 1 year)"),
+    severity: Optional[SeverityLevel] = Query(None, description="Filter by severity level"),
+    min_probability: Optional[float] = Query(None, ge=0.0, le=1.0, description="Minimum probability threshold")
+):
+    """
+    Export historical solar flare data as CSV file.
+    
+    **Enterprise Feature Only**: This endpoint requires Enterprise subscription.
+    
+    **Parameters**:
+    - `hours_back`: Number of hours to export (1-8760, default: 168)
+    - `severity`: Filter by severity level (low/medium/high)
+    - `min_probability`: Filter by minimum probability (0.0-1.0)
+    
+    **Authentication Required**: Bearer token (JWT or API key)
+    """
+    try:
+        from fastapi.responses import StreamingResponse
+        import csv
+        import io
+        
+        # Calculate time range
+        end_time = datetime.utcnow()
+        start_time = end_time - timedelta(hours=hours_back)
+        
+        # Get predictions with filters
+        if severity:
+            predictions = await predictions_repo.get_predictions_by_severity(
+                severity=severity,
+                hours_back=hours_back
+            )
+        elif min_probability is not None:
+            predictions = await predictions_repo.get_predictions_above_threshold(
+                probability_threshold=min_probability,
+                hours_back=hours_back
+            )
+        else:
+            predictions = await predictions_repo.get_predictions_by_time_range(
+                start_time=start_time,
+                end_time=end_time
+            )
+        
+        # Create CSV content
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write header
+        writer.writerow([
+            "timestamp",
+            "flare_probability", 
+            "severity_level",
+            "model_version",
+            "confidence_score",
+            "alert_triggered"
+        ])
+        
+        # Write data rows
+        for prediction in predictions:
+            alert_triggered = prediction.flare_probability >= settings.default_alert_thresholds.get('high', 0.8)
+            writer.writerow([
+                prediction.timestamp.isoformat(),
+                prediction.flare_probability,
+                prediction.severity_level.value,
+                prediction.model_version,
+                prediction.confidence_score or 0.0,
+                alert_triggered
+            ])
+        
+        # Prepare response
+        output.seek(0)
+        filename = f"solar_flare_data_{start_time.strftime('%Y%m%d')}_{end_time.strftime('%Y%m%d')}.csv"
+        
+        return StreamingResponse(
+            io.BytesIO(output.getvalue().encode('utf-8')),
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to export CSV: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to export data"
         )

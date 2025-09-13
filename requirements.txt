@@ -29,11 +29,15 @@ python-dotenv==1.0.0
 
 # Logging and monitoring
 structlog==23.2.0
+psutil==5.9.6
 
 # Security and authentication
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
+
+# Payment processing
+razorpay==1.4.1
 
 # Testing (development)
 pytest==7.4.3

@@ -407,6 +407,46 @@ class ModelInferenceEngine:
                 "error": str(e),
                 "last_check": datetime.utcnow().isoformat()
             }
+    
+    async def check_model_health(self) -> bool:
+        """
+        Quick health check to determine if model is ready.
+        
+        Returns:
+            True if model is healthy and ready for predictions
+        """
+        try:
+            if not self._model_loaded:
+                return False
+            
+            # Quick validation without full prediction
+            return self.model is not None and self.tokenizer is not None
+            
+        except Exception as e:
+            logger.error(f"Model health check failed: {e}")
+            return False
+
+
+class ModelInferenceService:
+    """Service wrapper for model inference engine."""
+    
+    def __init__(self):
+        self.engine = None
+    
+    async def get_engine(self) -> ModelInferenceEngine:
+        """Get or create model engine instance."""
+        if self.engine is None:
+            self.engine = ModelInferenceEngine()
+            await self.engine.initialize()
+        return self.engine
+    
+    async def check_model_health(self) -> bool:
+        """Check if model is healthy and ready."""
+        try:
+            engine = await self.get_engine()
+            return await engine.check_model_health()
+        except Exception:
+            return False
 
 
 # Global model instance

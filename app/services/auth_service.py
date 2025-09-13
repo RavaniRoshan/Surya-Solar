@@ -6,6 +6,8 @@ import logging
 import secrets
 import hashlib
 from pydantic import BaseModel, EmailStr
+from fastapi import HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from supabase import Client
 from supabase.lib.client_options import ClientOptions
@@ -405,3 +407,49 @@ auth_service = AuthService()
 def get_auth_service() -> AuthService:
     """Get the global authentication service instance."""
     return auth_service
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+) -> UserSession:
+    """
+    Dependency to get current authenticated user.
+    
+    Args:
+        credentials: HTTP Bearer token credentials
+        
+    Returns:
+        UserSession for authenticated user
+        
+    Raises:
+        HTTPException: If authentication fails
+    """
+    from fastapi import HTTPException, Depends
+    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+    
+    try:
+        # Try JWT token first
+        user_session = await auth_service.validate_token(credentials.credentials)
+        
+        if not user_session:
+            # Try API key authentication
+            user_session = await auth_service.validate_api_key(credentials.credentials)
+        
+        if not user_session:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid authentication credentials",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        
+        return user_session
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Authentication error: {e}")
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication failed",
+            headers={"WWW-Authenticate": "Bearer"}
+        )

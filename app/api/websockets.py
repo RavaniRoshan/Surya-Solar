@@ -7,8 +7,9 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, Depends, H
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.services.websocket_manager import get_websocket_manager, WebSocketManager
-from app.services.auth_service import get_auth_service, AuthService
+from app.services.auth_service import get_auth_service, AuthService, get_current_user
 from app.models.core import WebSocketMessage
+from app.middleware.subscription import require_websocket_access, get_api_key_subscription
 
 logger = logging.getLogger(__name__)
 

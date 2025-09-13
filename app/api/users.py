@@ -14,7 +14,7 @@ from app.models.core import (
     SubscriptionTier,
     ErrorResponse
 )
-from app.services.auth_service import get_auth_service, UserSession
+from app.services.auth_service import get_auth_service, UserSession, get_current_user
 from app.repositories.subscriptions import get_subscriptions_repository
 from app.repositories.api_usage import get_api_usage_repository
 from app.config import get_settings
@@ -27,51 +27,6 @@ auth_service = get_auth_service()
 subscriptions_repo = get_subscriptions_repository()
 api_usage_repo = get_api_usage_repository()
 settings = get_settings()
-
-
-async def get_current_user(
-    request: Request,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-) -> UserSession:
-    """
-    Dependency to get current authenticated user.
-    
-    Args:
-        request: FastAPI request object
-        credentials: HTTP Bearer token credentials
-        
-    Returns:
-        UserSession for authenticated user
-        
-    Raises:
-        HTTPException: If authentication fails
-    """
-    try:
-        # Try JWT token first
-        user_session = await auth_service.validate_token(credentials.credentials)
-        
-        if not user_session:
-            # Try API key authentication
-            user_session = await auth_service.validate_api_key(credentials.credentials)
-        
-        if not user_session:
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid authentication credentials",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-        
-        return user_session
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Authentication error: {e}")
-        raise HTTPException(
-            status_code=401,
-            detail="Authentication failed",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
 
 
 # Request/Response Models

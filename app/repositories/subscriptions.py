@@ -380,6 +380,40 @@ class SubscriptionsRepository(BaseRepository[UserSubscription]):
             logger.error(f"Failed to get users with webhooks: {e}")
             return []
     
+    async def cancel_subscription(
+        self, 
+        subscription_id: str, 
+        reason: Optional[str] = None,
+        immediate: bool = False
+    ) -> bool:
+        """
+        Cancel a subscription.
+        
+        Args:
+            subscription_id: Subscription ID to cancel
+            reason: Optional cancellation reason
+            immediate: Whether to cancel immediately or at cycle end
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            updates = {
+                'is_active': False if immediate else True,
+                'updated_at': datetime.utcnow()
+            }
+            
+            if immediate:
+                updates['subscription_end_date'] = datetime.utcnow()
+                updates['tier'] = SubscriptionTier.FREE.value
+            
+            updated_subscription = await self.update(subscription_id, updates)
+            return updated_subscription is not None
+            
+        except Exception as e:
+            logger.error(f"Failed to cancel subscription: {e}")
+            return False
+    
     async def get_subscription_statistics(self) -> Dict[str, Any]:
         """
         Get subscription statistics.
