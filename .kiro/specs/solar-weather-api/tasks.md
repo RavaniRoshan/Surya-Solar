@@ -123,8 +123,13 @@
     - Write integration tests for real-time alert delivery
     - _Requirements: 1.4, 3.2, 4.3_
 
-- [ ] 6. Develop Next.js dashboard frontend
-  - [ ] 6.1 Set up Next.js project with authentication
+- [-] 6. Develop Next.js dashboard frontend
+
+
+  - [x] 6.1 Set up Next.js project with authentication
+
+
+
     - Initialize Next.js project with TypeScript and Tailwind CSS
     - Implement Supabase authentication integration
     - Create protected route middleware and login/signup pages
