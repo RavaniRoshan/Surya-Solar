@@ -1,0 +1,444 @@
+#!/usr/bin/env python3
+"""Standalone documentation generation without full app dependencies."""
+
+import json
+from pathlib import Path
+from typing import Dict, Any
+
+def create_openapi_schema() -> Dict[str, Any]:
+    """Create a comprehensive OpenAPI schema for the ZERO-COMP API."""
+    
+    return {
+        "openapi": "3.0.2",
+        "info": {
+            "title": "ZERO-COMP Solar Weather API",
+            "version": "1.0.0",
+            "description": """
+# ZERO-COMP Solar Weather API
+
+Real-time solar flare prediction API powered by NASA-IBM's Surya-1.0 transformer model.
+
+## Overview
+
+ZERO-COMP provides enterprise-grade solar weather forecasting to industries that depend on space reliability, including:
+- **Satellite Operators**: Protect satellite fleets from space weather damage
+- **Power Grid Companies**: Plan maintenance windows and prevent outages
+- **Aviation Firms**: Adjust polar flight routes during solar storms
+- **Research Institutions**: Access historical solar weather data
+
+## Features
+
+- **Real-time Predictions**: Solar flare probability updates every 10 minutes
+- **Multiple Access Methods**: REST API, WebSocket alerts, and web dashboard
+- **Tiered Subscriptions**: Free, Pro ($50/month), and Enterprise ($500/month) plans
+- **Historical Data**: Access to comprehensive solar weather history
+- **Custom Alerts**: Configurable probability thresholds and webhook notifications
+
+## Authentication
+
+The API supports two authentication methods:
+
+### 1. JWT Tokens (Dashboard Users)
+Obtain JWT tokens through the web dashboard login process using Supabase authentication.
+
+### 2. API Keys (Programmatic Access)
+Generate API keys through the dashboard for programmatic access. API keys are available for Pro and Enterprise subscribers.
+
+**Authentication Header Format:**
+```
+Authorization: Bearer <your-jwt-token-or-api-key>
+```
+
+## Rate Limits
+
+Rate limits vary by subscription tier:
+
+| Tier | Alerts Endpoint | History Endpoint | WebSocket |
+|------|----------------|------------------|-----------|
+| Free | 10/hour | 5/hour | Dashboard only |
+| Pro | 1,000/hour | 500/hour | ✓ |
+| Enterprise | 10,000/hour | 5,000/hour | ✓ |
+
+## Error Handling
+
+All endpoints return consistent error responses:
+
+```json
+{
+  "error_code": "HTTP_400",
+  "message": "Invalid request parameters",
+  "details": {},
+  "timestamp": "2024-01-01T12:00:00Z",
+  "request_id": "uuid-string"
+}
+```
+
+## WebSocket Real-time Alerts
+
+Connect to `/ws/alerts` for real-time solar flare notifications:
+
+```javascript
+const ws = new WebSocket('wss://api.zero-comp.com/ws/alerts?token=your-jwt-token');
+ws.onmessage = (event) => {
+  const alert = JSON.parse(event.data);
+  if (alert.type === 'alert') {
+    console.log('Solar flare alert:', alert.data);
+  }
+};
+```
+
+## Support
+
+- **Documentation**: [https://docs.zero-comp.com](https://docs.zero-comp.com)
+- **Support Email**: support@zero-comp.com
+- **Status Page**: [https://status.zero-comp.com](https://status.zero-comp.com)
+            """,
+            "contact": {
+                "name": "ZERO-COMP Support",
+                "url": "https://zero-comp.com/support",
+                "email": "support@zero-comp.com"
+            },
+            "license": {
+                "name": "Commercial License",
+                "url": "https://zero-comp.com/license"
+            }
+        },
+        "servers": [
+            {
+                "url": "https://api.zero-comp.com",
+                "description": "Production server"
+            },
+            {
+                "url": "https://staging-api.zero-comp.com",
+                "description": "Staging server"
+            }
+        ],
+        "paths": {
+            "/api/v1/alerts/current": {
+                "get": {
+                    "tags": ["Alerts"],
+                    "summary": "Get current solar flare prediction",
+                    "description": "Returns the most recent solar flare probability prediction with severity classification.",
+                    "security": [{"BearerAuth": []}],
+                    "responses": {
+                        "200": {
+                            "description": "Current solar flare prediction",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/CurrentAlertResponse"},
+                                    "example": {
+                                        "current_probability": 0.75,
+                                        "severity_level": "high",
+                                        "last_updated": "2024-01-15T14:30:00Z",
+                                        "next_update": "2024-01-15T14:40:00Z",
+                                        "alert_active": True
+                                    }
+                                }
+                            }
+                        },
+                        "401": {"$ref": "#/components/responses/Unauthorized"},
+                        "429": {"$ref": "#/components/responses/RateLimitExceeded"},
+                        "500": {"$ref": "#/components/responses/InternalServerError"}
+                    }
+                }
+            },
+            "/api/v1/alerts/history": {
+                "get": {
+                    "tags": ["Alerts"],
+                    "summary": "Get historical solar flare predictions",
+                    "description": "Returns historical solar flare predictions with filtering and pagination support.",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "hours_back",
+                            "in": "query",
+                            "description": "Number of hours to look back (1-168)",
+                            "schema": {"type": "integer", "minimum": 1, "maximum": 168, "default": 24}
+                        },
+                        {
+                            "name": "severity",
+                            "in": "query",
+                            "description": "Filter by severity level",
+                            "schema": {"type": "string", "enum": ["low", "medium", "high"]}
+                        },
+                        {
+                            "name": "min_probability",
+                            "in": "query",
+                            "description": "Minimum probability threshold (0.0-1.0)",
+                            "schema": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+                        },
+                        {
+                            "name": "page",
+                            "in": "query",
+                            "description": "Page number for pagination",
+                            "schema": {"type": "integer", "minimum": 1, "default": 1}
+                        },
+                        {
+                            "name": "page_size",
+                            "in": "query",
+                            "description": "Number of results per page",
+                            "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Historical solar flare predictions",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/HistoricalAlertsResponse"}
+                                }
+                            }
+                        },
+                        "400": {"$ref": "#/components/responses/BadRequest"},
+                        "401": {"$ref": "#/components/responses/Unauthorized"},
+                        "429": {"$ref": "#/components/responses/RateLimitExceeded"},
+                        "500": {"$ref": "#/components/responses/InternalServerError"}
+                    }
+                }
+            },
+            "/ws/alerts": {
+                "get": {
+                    "tags": ["WebSocket"],
+                    "summary": "WebSocket connection for real-time alerts",
+                    "description": "Establish WebSocket connection for real-time solar flare notifications. Requires Pro or Enterprise subscription.",
+                    "parameters": [
+                        {
+                            "name": "token",
+                            "in": "query",
+                            "required": True,
+                            "description": "JWT token for authentication",
+                            "schema": {"type": "string"}
+                        }
+                    ],
+                    "responses": {
+                        "101": {"description": "WebSocket connection established"},
+                        "401": {"description": "Authentication failed"},
+                        "403": {"description": "Insufficient subscription tier"}
+                    }
+                }
+            }
+        },
+        "components": {
+            "securitySchemes": {
+                "BearerAuth": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT",
+                    "description": "JWT token obtained from Supabase authentication or API key for programmatic access"
+                }
+            },
+            "schemas": {
+                "CurrentAlertResponse": {
+                    "type": "object",
+                    "properties": {
+                        "current_probability": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0,
+                            "description": "Current solar flare probability (0.0-1.0)"
+                        },
+                        "severity_level": {
+                            "type": "string",
+                            "enum": ["low", "medium", "high"],
+                            "description": "Severity classification based on probability"
+                        },
+                        "last_updated": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Timestamp of last prediction update"
+                        },
+                        "next_update": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Expected timestamp of next prediction"
+                        },
+                        "alert_active": {
+                            "type": "boolean",
+                            "description": "Whether an alert is currently active based on thresholds"
+                        }
+                    },
+                    "required": ["current_probability", "severity_level", "last_updated", "next_update", "alert_active"]
+                },
+                "HistoricalAlertsResponse": {
+                    "type": "object",
+                    "properties": {
+                        "alerts": {
+                            "type": "array",
+                            "items": {"$ref": "#/components/schemas/AlertResponse"}
+                        },
+                        "total_count": {
+                            "type": "integer",
+                            "description": "Total number of alerts matching filters"
+                        },
+                        "page": {
+                            "type": "integer",
+                            "description": "Current page number"
+                        },
+                        "page_size": {
+                            "type": "integer",
+                            "description": "Number of results per page"
+                        },
+                        "has_more": {
+                            "type": "boolean",
+                            "description": "Whether more results are available"
+                        }
+                    },
+                    "required": ["alerts", "total_count", "page", "page_size", "has_more"]
+                },
+                "AlertResponse": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "Unique alert identifier"
+                        },
+                        "timestamp": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Prediction timestamp"
+                        },
+                        "flare_probability": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0,
+                            "description": "Solar flare probability"
+                        },
+                        "severity_level": {
+                            "type": "string",
+                            "enum": ["low", "medium", "high"],
+                            "description": "Severity classification"
+                        },
+                        "alert_triggered": {
+                            "type": "boolean",
+                            "description": "Whether this prediction triggered an alert"
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "Human-readable alert message"
+                        }
+                    },
+                    "required": ["id", "timestamp", "flare_probability", "severity_level", "alert_triggered", "message"]
+                },
+                "ErrorResponse": {
+                    "type": "object",
+                    "properties": {
+                        "error_code": {
+                            "type": "string",
+                            "description": "Machine-readable error code"
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "Human-readable error message"
+                        },
+                        "details": {
+                            "type": "object",
+                            "description": "Additional error details"
+                        },
+                        "timestamp": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Error timestamp"
+                        },
+                        "request_id": {
+                            "type": "string",
+                            "description": "Unique request identifier for debugging"
+                        }
+                    },
+                    "required": ["error_code", "message", "timestamp", "request_id"]
+                }
+            },
+            "responses": {
+                "BadRequest": {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/ErrorResponse"},
+                            "example": {
+                                "error_code": "INVALID_PARAMETERS",
+                                "message": "Invalid request parameters",
+                                "details": {"field": "hours_back", "error": "must be between 1 and 168"},
+                                "timestamp": "2024-01-15T14:30:00Z",
+                                "request_id": "req_abc123def456"
+                            }
+                        }
+                    }
+                },
+                "Unauthorized": {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/ErrorResponse"},
+                            "example": {
+                                "error_code": "AUTHENTICATION_REQUIRED",
+                                "message": "Valid authentication credentials required",
+                                "details": {"hint": "Include 'Authorization: Bearer <token>' header"},
+                                "timestamp": "2024-01-15T14:30:00Z",
+                                "request_id": "req_abc123def456"
+                            }
+                        }
+                    }
+                },
+                "RateLimitExceeded": {
+                    "description": "Rate Limit Exceeded",
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/ErrorResponse"},
+                            "example": {
+                                "error_code": "RATE_LIMIT_EXCEEDED",
+                                "message": "Rate limit exceeded for your subscription tier",
+                                "details": {"limit": 10, "window": "1 hour", "retry_after": 3600},
+                                "timestamp": "2024-01-15T14:30:00Z",
+                                "request_id": "req_abc123def456"
+                            }
+                        }
+                    }
+                },
+                "InternalServerError": {
+                    "description": "Internal Server Error",
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/ErrorResponse"},
+                            "example": {
+                                "error_code": "INTERNAL_SERVER_ERROR",
+                                "message": "An unexpected error occurred",
+                                "details": {},
+                                "timestamp": "2024-01-15T14:30:00Z",
+                                "request_id": "req_abc123def456"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+def generate_documentation():
+    """Generate comprehensive API documentation."""
+    
+    print("🚀 Generating ZERO-COMP API documentation...")
+    
+    # Create OpenAPI schema
+    openapi_schema = create_openapi_schema()
+    
+    # Create output directory
+    output_dir = Path('docs/api')
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save OpenAPI schema as JSON
+    with open(output_dir / 'openapi.json', 'w') as f:
+        json.dump(openapi_schema, f, indent=2)
+    
+    print(f"✅ OpenAPI schema saved to {output_dir / 'openapi.json'}")
+    
+    # Generate documentation files using the existing generator
+    from app.docs.generator import APIDocumentationGenerator
+    
+    generator = APIDocumentationGenerator(str(output_dir))
+    generator.generate_documentation(openapi_schema)
+    
+    print("📚 Documentation generation complete!")
+
+
+if __name__ == '__main__':
+    generate_documentation()

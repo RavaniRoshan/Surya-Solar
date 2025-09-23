@@ -65,19 +65,56 @@ def customize_openapi_schema(app: FastAPI) -> Dict[str, Any]:
 def _add_model_examples(schema: Dict[str, Any]) -> None:
     """Add comprehensive examples to data models."""
     
+    components = schema.get("components", {})
+    schemas = components.get("schemas", {})
+    
     # Current Alert Response Example
-    if "CurrentAlertResponse" in schema.get("components", {}).get("schemas", {}):
-        schema["components"]["schemas"]["CurrentAlertResponse"]["example"] = {
+    if "CurrentAlertResponse" in schemas:
+        schemas["CurrentAlertResponse"]["example"] = {
             "current_probability": 0.75,
             "severity_level": "high",
             "last_updated": "2024-01-15T14:30:00Z",
             "next_update": "2024-01-15T14:40:00Z",
             "alert_active": True
         }
+        
+        # Add multiple examples for different scenarios
+        schemas["CurrentAlertResponse"]["examples"] = {
+            "high_severity": {
+                "summary": "High severity solar flare alert",
+                "value": {
+                    "current_probability": 0.85,
+                    "severity_level": "high",
+                    "last_updated": "2024-01-15T14:30:00Z",
+                    "next_update": "2024-01-15T14:40:00Z",
+                    "alert_active": True
+                }
+            },
+            "medium_severity": {
+                "summary": "Medium severity prediction",
+                "value": {
+                    "current_probability": 0.55,
+                    "severity_level": "medium",
+                    "last_updated": "2024-01-15T14:30:00Z",
+                    "next_update": "2024-01-15T14:40:00Z",
+                    "alert_active": False
+                }
+            },
+            "low_severity": {
+                "summary": "Low severity prediction",
+                "value": {
+                    "current_probability": 0.25,
+                    "severity_level": "low",
+                    "last_updated": "2024-01-15T14:30:00Z",
+                    "next_update": "2024-01-15T14:40:00Z",
+                    "alert_active": False
+                }
+            }
+        }
     
     # Historical Alerts Response Example
-    if "HistoricalAlertsResponse" in schema.get("components", {}).get("schemas", {}):
-        schema["components"]["schemas"]["HistoricalAlertsResponse"]["example"] = {
+    if "HistoricalAlertsResponse" in schemas:
+        schemas["HistoricalAlertsResponse"]["example"] = {
             "alerts": [
                 {
                     "id": "alert_1705327800",
@@ -101,10 +138,60 @@ def _add_model_examples(schema: Dict[str, Any]) -> None:
             "page_size": 50,
             "has_more": True
         }
+        
+        # Add examples for different filter scenarios
+        schemas["HistoricalAlertsResponse"]["examples"] = {
+            "recent_24h": {
+                "summary": "Last 24 hours of predictions",
+                "value": {
+                    "alerts": [
+                        {
+                            "id": "alert_1705327800",
+                            "timestamp": "2024-01-15T14:30:00Z",
+                            "flare_probability": 0.85,
+                            "severity_level": "high",
+                            "alert_triggered": True,
+                            "message": "High severity solar flare prediction: 85.0% probability"
+                        }
+                    ],
+                    "total_count": 144,
+                    "page": 1,
+                    "page_size": 50,
+                    "has_more": True
+                }
+            },
+            "high_severity_only": {
+                "summary": "High severity alerts only",
+                "value": {
+                    "alerts": [
+                        {
+                            "id": "alert_1705327800",
+                            "timestamp": "2024-01-15T14:30:00Z",
+                            "flare_probability": 0.85,
+                            "severity_level": "high",
+                            "alert_triggered": True,
+                            "message": "High severity solar flare prediction: 85.0% probability"
+                        },
+                        {
+                            "id": "alert_1705324200",
+                            "timestamp": "2024-01-15T13:30:00Z",
+                            "flare_probability": 0.92,
+                            "severity_level": "high",
+                            "alert_triggered": True,
+                            "message": "High severity solar flare prediction: 92.0% probability"
+                        }
+                    ],
+                    "total_count": 12,
+                    "page": 1,
+                    "page_size": 50,
+                    "has_more": False
+                }
+            }
+        }
     
     # User Profile Response Example
-    if "UserProfileResponse" in schema.get("components", {}).get("schemas", {}):
-        schema["components"]["schemas"]["UserProfileResponse"]["example"] = {
+    if "UserProfileResponse" in schemas:
+        schemas["UserProfileResponse"]["example"] = {
             "user_id": "user_123456789",
             "email": "user@example.com",
             "subscription_tier": "pro",
@@ -122,8 +209,8 @@ def _add_model_examples(schema: Dict[str, Any]) -> None:
         }
     
     # Error Response Example
-    if "ErrorResponse" in schema.get("components", {}).get("schemas", {}):
-        schema["components"]["schemas"]["ErrorResponse"]["example"] = {
+    if "ErrorResponse" in schemas:
+        schemas["ErrorResponse"]["example"] = {
             "error_code": "RATE_LIMIT_EXCEEDED",
             "message": "Rate limit exceeded for your subscription tier",
             "details": {

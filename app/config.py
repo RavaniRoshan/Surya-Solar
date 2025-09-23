@@ -16,6 +16,7 @@ class DatabaseConfig(BaseSettings):
     
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 class AuthConfig(BaseSettings):
@@ -27,6 +28,7 @@ class AuthConfig(BaseSettings):
     
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 class ModelConfig(BaseSettings):
@@ -40,6 +42,7 @@ class ModelConfig(BaseSettings):
     
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 class ExternalServicesConfig(BaseSettings):
@@ -54,6 +57,7 @@ class ExternalServicesConfig(BaseSettings):
     
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 class APIConfig(BaseSettings):
@@ -77,6 +81,7 @@ class APIConfig(BaseSettings):
     
     class Config:
         env_file = ".env"
+        extra = "ignore"
         
         @classmethod
         def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
@@ -94,6 +99,7 @@ class LoggingConfig(BaseSettings):
     
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 class Settings(BaseSettings):
@@ -143,6 +149,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"
 
 
 # Global settings instance
