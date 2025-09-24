@@ -67,7 +67,7 @@ class MockWebSocket {
   }
 
   // Simulate server message
-  simulateMessage(data: any) {
+  simulateMessage(data: Record<string, unknown>) {
     if (this.onmessage) {
       this.onmessage(new MessageEvent('message', { data: JSON.stringify(data) }))
     }
@@ -93,7 +93,7 @@ jest.mock('@/lib/supabase', () => ({
 }))
 
 // Replace global WebSocket with mock
-global.WebSocket = MockWebSocket as any
+global.WebSocket = MockWebSocket as unknown as typeof WebSocket
 
 describe('WebSocketClient', () => {
   let client: WebSocketClient
@@ -173,7 +173,7 @@ describe('WebSocketClient', () => {
     beforeEach(async () => {
       await client.connect()
       await new Promise(resolve => setTimeout(resolve, 20))
-      mockWs = (client as any).ws
+      mockWs = (client as unknown as { ws: MockWebSocket }).ws
     })
 
     it('should receive and parse messages', async () => {
@@ -235,7 +235,7 @@ describe('WebSocketClient', () => {
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('WebSocket is not connected'),
-        expect.any(Object)
+        expect.any(Object) as Record<string, unknown>
       )
 
       consoleSpy.mockRestore()
@@ -251,7 +251,7 @@ describe('WebSocketClient', () => {
       await new Promise(resolve => setTimeout(resolve, 20))
 
       // Simulate connection loss
-      mockWs = (client as any).ws
+      mockWs = (client as unknown as { ws: MockWebSocket }).ws
       mockWs.close(1006, 'Connection lost')
 
       await new Promise(resolve => setTimeout(resolve, 10))
@@ -260,7 +260,7 @@ describe('WebSocketClient', () => {
         expect.objectContaining({
           connected: false,
           reconnecting: true,
-          reconnectAttempts: expect.any(Number)
+          reconnectAttempts: expect.any(Number) as number
         })
       )
     })

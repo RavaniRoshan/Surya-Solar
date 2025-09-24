@@ -30,7 +30,7 @@ export default function DashboardPage() {
   useEffect(() => {
     // Request notification permission when dashboard loads
     notificationManager.requestPermission()
-  }, [])
+  }, [notificationManager])
 
   return (
     <div className="min-h-screen bg-gray-50">

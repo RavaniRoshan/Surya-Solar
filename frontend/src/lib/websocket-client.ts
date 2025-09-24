@@ -2,8 +2,20 @@ import { createClient } from './supabase'
 
 export interface WebSocketMessage {
   type: 'alert' | 'heartbeat' | 'error' | 'connection_status'
-  data: any
+  data: Record<string, unknown>
   timestamp: string
+}
+
+export interface AlertWebSocketMessage extends WebSocketMessage {
+  type: 'alert'
+  data: {
+    current_probability: number
+    severity_level: 'low' | 'medium' | 'high'
+    last_updated: string
+    next_update: string
+    alert_active: boolean
+    [key: string]: unknown
+  }
 }
 
 export interface ConnectionStatus {

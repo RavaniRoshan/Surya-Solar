@@ -1,26 +1,123 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: rgb(245, 245, 255);
+  --foreground: rgb(42, 42, 74);
+  --card: rgb(255, 255, 255);
+  --card-foreground: rgb(42, 42, 74);
+  --popover: rgb(255, 255, 255);
+  --popover-foreground: rgb(42, 42, 74);
+  --primary: rgb(110, 86, 207);
+  --primary-foreground: rgb(255, 255, 255);
+  --secondary: rgb(228, 223, 255);
+  --secondary-foreground: rgb(74, 64, 128);
+  --muted: rgb(240, 240, 250);
+  --muted-foreground: rgb(108, 108, 138);
+  --accent: rgb(216, 230, 255);
+  --accent-foreground: rgb(42, 42, 74);
+  --destructive: rgb(255, 84, 112);
+  --destructive-foreground: rgb(255, 255, 255);
+  --border: rgb(224, 224, 240);
+  --input: rgb(224, 224, 240);
+  --ring: rgb(110, 86, 207);
+  --chart-1: rgb(110, 86, 207);
+  --chart-2: rgb(158, 140, 252);
+  --chart-3: rgb(93, 95, 239);
+  --chart-4: rgb(124, 117, 250);
+  --chart-5: rgb(71, 64, 179);
+  --radius: 0.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --background: rgb(15, 15, 26);
+  --foreground: rgb(226, 226, 245);
+  --card: rgb(26, 26, 46);
+  --card-foreground: rgb(226, 226, 245);
+  --popover: rgb(26, 26, 46);
+  --popover-foreground: rgb(226, 226, 245);
+  --primary: rgb(164, 143, 255);
+  --primary-foreground: rgb(15, 15, 26);
+  --secondary: rgb(45, 43, 85);
+  --secondary-foreground: rgb(196, 194, 255);
+  --muted: rgb(34, 34, 68);
+  --muted-foreground: rgb(160, 160, 192);
+  --accent: rgb(48, 48, 96);
+  --accent-foreground: rgb(226, 226, 245);
+  --destructive: rgb(255, 84, 112);
+  --destructive-foreground: rgb(255, 255, 255);
+  --border: rgb(48, 48, 82);
+  --input: rgb(48, 48, 82);
+  --ring: rgb(164, 143, 255);
+  --chart-1: rgb(164, 143, 255);
+  --chart-2: rgb(121, 134, 203);
+  --chart-3: rgb(100, 181, 246);
+  --chart-4: rgb(77, 182, 172);
+  --chart-5: rgb(255, 121, 198);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: Inter, system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-body {
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(160, 160, 192, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 160, 192, 0.4);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Glass morphism utilities */
+.glass {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+}
+
+.dark .glass {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Animation utilities */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(110, 86, 207, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(110, 86, 207, 0.6); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }

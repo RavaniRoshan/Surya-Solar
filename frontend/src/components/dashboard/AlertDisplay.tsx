@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { AlertTriangle, Shield, Zap } from 'lucide-react'
 import { CurrentAlertResponse } from '@/types/dashboard'
 import { api } from '@/lib/api-client'
@@ -50,7 +50,7 @@ export default function AlertDisplay({ className = '' }: AlertDisplayProps) {
     onMessage: (message) => {
       if (message.type === 'alert' && message.data) {
         // Update current alert with real-time data
-        const alertData = message.data
+        const alertData = message.data as unknown as CurrentAlertResponse
         setCurrentAlert(alertData)
         setLastUpdate(new Date())
         setError(null)
@@ -68,7 +68,7 @@ export default function AlertDisplay({ className = '' }: AlertDisplayProps) {
     }
   })
 
-  const fetchCurrentAlert = async () => {
+  const fetchCurrentAlert = useCallback(async () => {
     try {
       setLoading(true)
       const response = await api.alerts.getCurrent()
@@ -81,7 +81,7 @@ export default function AlertDisplay({ className = '' }: AlertDisplayProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchCurrentAlert()
@@ -99,7 +99,7 @@ export default function AlertDisplay({ className = '' }: AlertDisplayProps) {
     return () => {
       if (interval) clearInterval(interval)
     }
-  }, [isConnected])
+  }, [isConnected, notificationManager, fetchCurrentAlert])
 
   if (loading) {
     return (

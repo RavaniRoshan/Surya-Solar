@@ -34,7 +34,11 @@ export default function HistoricalChart({ className = '' }: HistoricalChartProps
   useWebSocket({
     onMessage: (message) => {
       if (message.type === 'alert' && message.data && timeRange === '24h') {
-        const alertData = message.data
+        const alertData = message.data as unknown as {
+          last_updated: string
+          current_probability: number
+          severity_level: string
+        }
         const newDataPoint: ChartDataPoint = {
           timestamp: alertData.last_updated,
           probability: alertData.current_probability * 100,

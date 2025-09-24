@@ -76,14 +76,20 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
     return () => {
       unsubscribeMessage()
       unsubscribeStatus()
+      // Store client reference for cleanup
+      const currentClient = client
+      if (!autoConnect) {
+        currentClient.disconnect()
+      }
     }
   }, [autoConnect, connect])
   
   // Cleanup on unmount
   useEffect(() => {
+    const client = wsClient.current
     return () => {
       if (!autoConnect) {
-        wsClient.current.disconnect()
+        client.disconnect()
       }
     }
   }, [autoConnect])

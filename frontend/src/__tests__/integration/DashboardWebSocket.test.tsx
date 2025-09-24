@@ -76,21 +76,21 @@ jest.mock('@/lib/api-client', () => ({
 const mockConnect = jest.fn()
 const mockDisconnect = jest.fn()
 const mockSend = jest.fn()
-let mockMessageHandlers: Array<(message: any) => void> = []
-let mockStatusHandlers: Array<(status: any) => void> = []
+let mockMessageHandlers: Array<(message: Record<string, unknown>) => void> = []
+let mockStatusHandlers: Array<(status: Record<string, unknown>) => void> = []
 
 jest.mock('@/lib/websocket-client', () => ({
   getWebSocketClient: () => ({
     connect: mockConnect,
     disconnect: mockDisconnect,
     send: mockSend,
-    onMessage: (handler: (message: any) => void) => {
+    onMessage: (handler: (message: Record<string, unknown>) => void) => {
       mockMessageHandlers.push(handler)
       return () => {
         mockMessageHandlers = mockMessageHandlers.filter(h => h !== handler)
       }
     },
-    onConnectionStatus: (handler: (status: any) => void) => {
+    onConnectionStatus: (handler: (status: Record<string, unknown>) => void) => {
       mockStatusHandlers.push(handler)
       // Immediately call with initial status
       handler({
@@ -125,13 +125,13 @@ jest.mock('@/lib/notifications', () => ({
 
 // Mock Recharts to avoid canvas issues in tests
 jest.mock('recharts', () => ({
-  LineChart: ({ children }: any) => <div data-testid="line-chart">{children}</div>,
+  LineChart: ({ children }: { children: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
   Line: () => <div data-testid="line" />,
   XAxis: () => <div data-testid="x-axis" />,
   YAxis: () => <div data-testid="y-axis" />,
   CartesianGrid: () => <div data-testid="grid" />,
   Tooltip: () => <div data-testid="tooltip" />,
-  ResponsiveContainer: ({ children }: any) => <div data-testid="responsive-container">{children}</div>,
+  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="responsive-container">{children}</div>,
   ReferenceLine: () => <div data-testid="reference-line" />
 }))
 
