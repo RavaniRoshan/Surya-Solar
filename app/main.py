@@ -315,6 +315,7 @@ ws.onmessage = (event) => {
     from app.api.payments import router as payments_router
     from app.api.health import router as health_router
     from app.api.monitoring import router as monitoring_router
+    from app.api.feedback import router as feedback_router
     app.include_router(alerts_router)
     app.include_router(users_router)
     app.include_router(user_alerts_router)
@@ -322,6 +323,7 @@ ws.onmessage = (event) => {
     app.include_router(payments_router)
     app.include_router(health_router)
     app.include_router(monitoring_router)
+    app.include_router(feedback_router)
     
     # Customize OpenAPI schema with enhanced documentation
     app.openapi = lambda: customize_openapi_schema(app)

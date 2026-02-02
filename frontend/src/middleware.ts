@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-  
+
   const supabase = createServerClient(
     supabaseUrl,
     supabaseKey,
@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
@@ -35,9 +35,17 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Beta Mode Redirect
+  const isBetaMode = process.env.NEXT_PUBLIC_BETA_MODE === 'true'
+  const isBetaWaitingPage = request.nextUrl.pathname === '/beta-waiting'
+
+  if (isBetaMode && user && !isBetaWaitingPage && !request.nextUrl.pathname.startsWith('/auth/')) {
+    return NextResponse.redirect(new URL('/beta-waiting', request.url))
+  }
+
   // Protected routes
   const protectedPaths = ['/dashboard']
-  const isProtectedPath = protectedPaths.some(path => 
+  const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   )
 
@@ -48,9 +56,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Redirect to dashboard if authenticated user tries to access auth pages
+  // Redirect to dashboard (or beta waiting) if authenticated user tries to access auth pages
   if (user && request.nextUrl.pathname.startsWith('/auth/')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    const target = isBetaMode ? '/beta-waiting' : '/dashboard'
+    return NextResponse.redirect(new URL(target, request.url))
   }
 
   return supabaseResponse
