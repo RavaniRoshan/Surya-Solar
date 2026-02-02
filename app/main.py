@@ -310,12 +310,14 @@ ws.onmessage = (event) => {
     # Include API routers
     from app.api.alerts import router as alerts_router
     from app.api.users import router as users_router
+    from app.api.user_alerts import router as user_alerts_router
     from app.api.websockets import router as websockets_router
     from app.api.payments import router as payments_router
     from app.api.health import router as health_router
     from app.api.monitoring import router as monitoring_router
     app.include_router(alerts_router)
     app.include_router(users_router)
+    app.include_router(user_alerts_router)
     app.include_router(websockets_router)
     app.include_router(payments_router)
     app.include_router(health_router)
