@@ -9,10 +9,7 @@ import {
   ExternalLink,
   Activity,
   Wifi,
-  Clock,
-  Thermometer,
-  BarChart3,
-  TrendingUp
+  Clock
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -63,7 +60,7 @@ function generateChartData() {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  useAuth() // Ensure auth context is available
   const [chartData, setChartData] = useState(generateChartData())
   const [activeTab, setActiveTab] = useState('xray')
 
@@ -90,8 +87,8 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setActiveTab('xray')}
                   className={`px-4 py-1.5 text-xs font-medium rounded-lg transition-colors ${activeTab === 'xray'
-                      ? 'bg-cyan-600 text-white'
-                      : 'bg-[#1a1a24] text-gray-400 hover:text-white'
+                    ? 'bg-cyan-600 text-white'
+                    : 'bg-[#1a1a24] text-gray-400 hover:text-white'
                     }`}
                 >
                   X-Ray Flux
@@ -99,8 +96,8 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setActiveTab('proton')}
                   className={`px-4 py-1.5 text-xs font-medium rounded-lg transition-colors ${activeTab === 'proton'
-                      ? 'bg-cyan-600 text-white'
-                      : 'bg-[#1a1a24] text-gray-400 hover:text-white'
+                    ? 'bg-cyan-600 text-white'
+                    : 'bg-[#1a1a24] text-gray-400 hover:text-white'
                     }`}
                 >
                   Proton

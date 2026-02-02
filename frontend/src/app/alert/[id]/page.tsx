@@ -2,12 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import {
     AlertTriangle,
     ExternalLink,
-    Settings,
-    FileCode,
     HelpCircle,
     Linkedin,
     Radio
@@ -29,7 +26,6 @@ const mockAlert = {
 }
 
 export default function AlertDetailPage() {
-    const params = useParams()
     const [alert] = useState(mockAlert)
     const [fluxData, setFluxData] = useState<number[]>([])
 
