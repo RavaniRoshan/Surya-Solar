@@ -1,5 +1,6 @@
 # ZERO-COMP Solar Weather API
-<img width="1692" height="892" alt="image" src="https://github.com/user-attachments/assets/504d6c0f-6ace-4617-9030-9b70ef401ec1" />
+<img width="1697" height="887" alt="image" src="https://github.com/user-attachments/assets/99e830b2-2457-41e2-8034-45edd391a19d" />
+
 
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/your-username/your-repo)
