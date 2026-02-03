@@ -1,684 +1,506 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
-import { 
-  Zap, 
-  ArrowRight,
-  Satellite,
-  Globe,
-  Clock,
-  Shield,
-  Code,
-  Activity,
-  Database,
-  Cpu,
-  Check,
-  ExternalLink
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+    ChevronDown,
+    Check,
+    ArrowRight,
+    Satellite,
+    Zap,
+    Globe,
+    Shield,
 } from 'lucide-react'
+
+// Components
+import { Navbar } from '@/components/landing/Navbar'
+import { HeroCard } from '@/components/landing/HeroCard'
+import { SunAnimation } from '@/components/landing/SunAnimation'
+import { Integrations } from '@/components/landing/Integrations'
+import { ProximityBlur } from '@/components/landing/ProximityBlur'
 
 export const dynamic = 'force-dynamic'
 
-// Animation variants
-const fadeInUp = {
-  initial: { opacity: 0, y: 40 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, ease: "easeOut" }
-}
-
-const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.1
+// FAQ Data
+const faqData = [
+    {
+        question: "What data sources does ZERO-COMP use?",
+        answer: "ZERO-COMP integrates real-time data from NASA's SDO satellite, NOAA's SWPC, and other global monitoring stations to provide comprehensive solar weather analysis."
+    },
+    {
+        question: "How accurate are the predictions?",
+        answer: "Our Surya 1.0 model achieves 87% accuracy for solar flare predictions with a 10-minute advance window, significantly outperforming traditional forecasting methods."
+    },
+    {
+        question: "Is there an API for integrations?",
+        answer: "Yes! We offer REST, WebSocket, and GraphQL APIs with comprehensive documentation. Get started with our free tier that includes 1,000 API calls per month."
+    },
+    {
+        question: "Can I try it for free?",
+        answer: "Absolutely! Sign up for our free tier to explore the dashboard, access basic predictions, and make up to 1,000 API calls monthly. No credit card required."
     }
-  }
-}
+]
 
-// Animated counter component
-function AnimatedNumber({ value, suffix = '' }: { value: string; suffix?: string }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
-  
-  return (
-    <motion.span
-      ref={ref}
-      initial={{ opacity: 0 }}
-      animate={isInView ? { opacity: 1 } : {}}
-      className="font-mono"
-    >
-      {value}{suffix}
-    </motion.span>
-  )
+// Animated FAQ Item
+function FAQItem({ question, answer, isDark }: { question: string; answer: string; isDark: boolean }) {
+    const [isOpen, setIsOpen] = useState(false)
+
+    return (
+        <div className={`border-b last:border-0 ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className={`w-full py-6 flex items-center justify-between text-left transition-colors group ${isDark ? 'hover:text-purple-400' : 'hover:text-purple-600'
+                    }`}
+            >
+                <span className={`font-medium text-lg transition-colors ${isDark
+                        ? 'text-white group-hover:text-purple-400'
+                        : 'text-gray-900 group-hover:text-purple-600'
+                    }`}>{question}</span>
+                <motion.div
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    <ChevronDown className={`w-5 h-5 ${isDark
+                            ? 'text-gray-500 group-hover:text-purple-400'
+                            : 'text-gray-400 group-hover:text-purple-600'
+                        }`} />
+                </motion.div>
+            </button>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                    >
+                        <div className={`pb-6 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {answer}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    )
 }
 
 export default function Home() {
-  return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">Z</span>
-              </div>
-              <span className="text-white font-semibold text-lg">ZERO-COMP</span>
-            </div>
-            
-            <div className="hidden md:flex items-center space-x-8 text-sm text-gray-400">
-              <Link href="#features" className="hover:text-white transition-colors">Features</Link>
-              <Link href="#precision" className="hover:text-white transition-colors">Surya AI</Link>
-              <Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link>
-              <Link href="/docs" className="hover:text-white transition-colors">API Docs</Link>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Link href="/auth/login" className="text-sm text-gray-400 hover:text-white transition-colors">
-                Sign In
-              </Link>
-              <Link 
-                href="/auth/signup" 
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium transition-colors"
-              >
-                Get API Key
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    const [isDark, setIsDark] = useState(false)
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20">
-        {/* Background gradient effects */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/20 rounded-full blur-[120px]" />
-          <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px]" />
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-6 py-20">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <p className="text-purple-400 text-sm font-medium tracking-wider uppercase mb-4">
-              Powered by NASA-IBM Surya-1.0
-            </p>
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="text-white">Predict the</span>
-              <br />
-              <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
-                Unpredictable.
-              </span>
-            </h1>
-            <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-8">
-              The first enterprise-grade solar flare prediction API. Protect your grid, 
-              satellites, and aviation with 10-minute advance space weather 
-              intelligence.
-            </p>
-            
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Link 
-                href="/auth/signup"
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-lg font-medium flex items-center space-x-2 transition-all"
-              >
-                <span>Start Free Trial</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link 
-                href="/dashboard"
-                className="px-8 py-3 border border-gray-700 hover:border-gray-600 rounded-lg font-medium text-gray-300 hover:text-white transition-all"
-              >
-                View Dashboard
-              </Link>
-            </div>
-          </motion.div>
+    const toggleTheme = () => setIsDark(!isDark)
 
-          {/* Stats Dashboard Preview */}
-          <motion.div 
-            className="relative max-w-4xl mx-auto"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <div className="bg-[#12121a] border border-[#2a2a3a] rounded-2xl p-6 shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-gray-500 uppercase tracking-wider">Live Prediction Engine</span>
-                </div>
-                <span className="text-xs text-gray-500">Last update: just now</span>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {/* Flare Probability */}
-                <div className="bg-[#1a1a24] rounded-xl p-4 border border-[#2a2a3a]">
-                  <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Flare Probability</div>
-                  <div className="flex items-end space-x-1">
-                    <span className="text-3xl font-bold text-purple-400">87</span>
-                    <span className="text-lg text-purple-400 mb-1">%</span>
-                  </div>
-                  <div className="mt-2 h-1 bg-[#2a2a3a] rounded-full overflow-hidden">
-                    <div className="h-full w-[87%] bg-gradient-to-r from-purple-600 to-purple-400 rounded-full" />
-                  </div>
-                </div>
-                
-                {/* Solar Intensity */}
-                <div className="bg-[#1a1a24] rounded-xl p-4 border border-[#2a2a3a]">
-                  <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Solar Intensity</div>
-                  <div className="flex items-end space-x-1">
-                    <span className="text-3xl font-bold text-cyan-400">183</span>
-                    <span className="text-sm text-gray-500 mb-1">MV</span>
-                  </div>
-                  <div className="mt-2 flex space-x-1">
-                    {[...Array(8)].map((_, i) => (
-                      <div key={i} className={`h-3 w-2 rounded-sm ${i < 6 ? 'bg-cyan-500' : 'bg-[#2a2a3a]'}`} />
-                    ))}
-                  </div>
-                </div>
-                
-                {/* KP Index */}
-                <div className="bg-[#1a1a24] rounded-xl p-4 border border-[#2a2a3a]">
-                  <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">KP Index</div>
-                  <div className="flex items-end space-x-1">
-                    <span className="text-3xl font-bold text-amber-400">7.33</span>
-                  </div>
-                  <div className="mt-2 text-xs text-amber-400">High Activity</div>
-                </div>
-                
-                {/* Temperature Delta */}
-                <div className="bg-[#1a1a24] rounded-xl p-4 border border-[#2a2a3a]">
-                  <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Temp Delta</div>
-                  <div className="flex items-end space-x-1">
-                    <span className="text-3xl font-bold text-emerald-400">18°k</span>
-                    <span className="text-sm text-emerald-400 mb-1">+5k</span>
-                  </div>
-                  <div className="mt-2 flex items-center space-x-1 text-xs text-emerald-400">
-                    <Activity className="w-3 h-3" />
-                    <span>Rising</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Glow effect under dashboard */}
-            <div className="absolute inset-x-10 -bottom-4 h-20 bg-purple-600/20 blur-2xl rounded-full" />
-          </motion.div>
+    return (
+        <div className={`min-h-screen font-sans transition-colors duration-300 ${isDark
+                ? 'bg-[#0A0A0F] text-white selection:bg-purple-900 selection:text-purple-100'
+                : 'bg-[#FAFAFA] text-gray-900 selection:bg-purple-100 selection:text-purple-900'
+            }`}>
+            <Navbar isDark={isDark} onThemeToggle={toggleTheme} />
 
-          {/* Trusted By */}
-          <motion.div 
-            className="mt-20 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            <p className="text-xs text-gray-600 uppercase tracking-widest mb-6">Trusted by Global Monitoring Stations</p>
-            <div className="flex items-center justify-center flex-wrap gap-8 text-gray-600">
-              <div className="flex items-center space-x-2">
-                <Satellite className="w-5 h-5" />
-                <span className="text-sm font-medium">NASA</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Globe className="w-5 h-5" />
-                <span className="text-sm font-medium">ESA</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Shield className="w-5 h-5" />
-                <span className="text-sm font-medium">STARLINK</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Zap className="w-5 h-5" />
-                <span className="text-sm font-medium">30 GRIDS</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Activity className="w-5 h-5" />
-                <span className="text-sm font-medium">100+ CLIENTS</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+            {/* Hero Section */}
+            <section className="relative pt-40 pb-20 px-6 overflow-hidden">
+                <div className="max-w-7xl mx-auto text-center relative z-10">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        <h1 className="text-5xl md:text-7xl font-light mb-8 leading-tight">
+                            <span className={`font-serif italic ${isDark ? 'text-white' : 'text-gray-900'}`}>The Mission Control for</span>
+                            <br />
+                            <span className={`font-sans font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Solar Weather</span>
+                        </h1>
 
-      {/* Real-time Space Weather Section */}
-      <section id="features" className="py-24 bg-[#08080c]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <p className="text-purple-400 text-sm font-medium tracking-wider uppercase mb-4">
-                Latency-First Design
-              </p>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                <span className="text-white">Real-time Space</span>
-                <br />
-                <span className="text-white">Weather</span>
-                <br />
-                <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                  Streamed in Milliseconds.
-                </span>
-              </h2>
-              <p className="text-gray-400 mb-8">
-                Predictions arrive in under 50ms across all L1 satellites. Our 
-                WebSocket API pushes 1.38 requests. Real-time X-class alerts 
-                streamed before they strike your satellite.
-              </p>
-              
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-purple-600/20 flex items-center justify-center mt-0.5">
-                    <Database className="w-3 h-3 text-purple-400" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white">Data-Driven Library</h4>
-                    <p className="text-sm text-gray-500">40 years of historical solar data</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-cyan-600/20 flex items-center justify-center mt-0.5">
-                    <Cpu className="w-3 h-3 text-cyan-400" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white">Space Architecture</h4>
-                    <p className="text-sm text-gray-500">Built for satellite-grade reliability</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-emerald-600/20 flex items-center justify-center mt-0.5">
-                    <Code className="w-3 h-3 text-emerald-400" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white">Developer-First APIs</h4>
-                    <p className="text-sm text-gray-500">REST, WebSocket, and GraphQL support</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-            
-            {/* Code/Data visualization */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="relative"
-            >
-              <div className="bg-[#12121a] border border-[#2a2a3a] rounded-2xl p-6 font-mono text-sm">
-                <div className="flex items-center space-x-2 mb-4">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                  <span className="text-gray-500 text-xs ml-4">api_response.json</span>
-                </div>
-                <pre className="text-gray-300 overflow-x-auto">
-{`{
-  "prediction": {
-    "flare_class": "X-2.1",
-    "probability": 0.87,
-    "peak_time": "2026-02-02T14:45:00Z",
-    "confidence": 0.94
-  },
-  "alerts": {
-    "severity": "high",
-    "affected_regions": ["NA", "EU"],
-    "recommended_action": "standby"
-  },
-  "model": "surya-1.0",
-  "latency_ms": 42
-}`}
-                </pre>
-              </div>
-              <div className="absolute -bottom-4 -right-4 bg-purple-600/20 blur-2xl w-32 h-32 rounded-full" />
-            </motion.div>
-          </div>
-        </div>
-      </section>
+                        <p className={`text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'
+                            }`}>
+                            Finally — satellite operators and grid managers can protect assets from
+                            solar disruptions. Protect your infrastructure with the Surya 1.0 model.
+                        </p>
 
-      {/* Unmatched Precision Section */}
-      <section id="precision" className="py-24 bg-[#0a0a0f]">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Unmatched Precision
-            </h2>
-            <p className="text-gray-400 mb-12">
-              See how Surya-1.0 outperforms every FDA-grade tracker in false-positive reduction.
-            </p>
-          </motion.div>
-          
-          {/* Comparison Bars */}
-          <motion.div 
-            className="space-y-6 mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full bg-purple-500" />
-                  <span className="text-white font-medium">Surya 1.0 Model</span>
-                </div>
-                <span className="text-purple-400 font-bold">94.2%</span>
-              </div>
-              <div className="h-3 bg-[#1a1a24] rounded-full overflow-hidden">
-                <motion.div 
-                  className="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full"
-                  initial={{ width: 0 }}
-                  whileInView={{ width: "94.2%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, delay: 0.3 }}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full bg-gray-500" />
-                  <span className="text-gray-400 font-medium">Traditional SWPC Models</span>
-                </div>
-                <span className="text-gray-500 font-bold">68.5%</span>
-              </div>
-              <div className="h-3 bg-[#1a1a24] rounded-full overflow-hidden">
-                <motion.div 
-                  className="h-full bg-gray-600 rounded-full"
-                  initial={{ width: 0 }}
-                  whileInView={{ width: "68.5%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, delay: 0.4 }}
-                />
-              </div>
-            </div>
-          </motion.div>
-          
-          {/* Stats */}
-          <motion.div 
-            className="grid grid-cols-3 gap-8"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-          >
-            <motion.div variants={fadeInUp} className="text-center">
-              <div className="text-4xl font-bold text-white mb-2">0.02%</div>
-              <div className="text-sm text-gray-500">False Positive Rate</div>
-            </motion.div>
-            <motion.div variants={fadeInUp} className="text-center">
-              <div className="text-4xl font-bold text-white mb-2">40 Years</div>
-              <div className="text-sm text-gray-500">Training Data</div>
-            </motion.div>
-            <motion.div variants={fadeInUp} className="text-center">
-              <div className="text-4xl font-bold text-white mb-2">10 min</div>
-              <div className="text-sm text-gray-500">Prediction Window</div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
+                            <Link
+                                href="/auth/signup"
+                                className={`px-8 py-4 rounded-xl font-medium transition-all hover:scale-105 shadow-lg ${isDark
+                                        ? 'bg-white hover:bg-gray-100 text-gray-900 shadow-white/10'
+                                        : 'bg-gray-900 hover:bg-black text-white shadow-gray-200'
+                                    }`}
+                            >
+                                Get started for free
+                            </Link>
+                            <Link
+                                href="#demo"
+                                className={`px-8 py-4 rounded-xl font-medium transition-all ${isDark
+                                        ? 'bg-gray-800 border border-gray-700 hover:border-gray-600 text-white hover:bg-gray-700'
+                                        : 'bg-white border border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50'
+                                    }`}
+                            >
+                                Request a demo
+                            </Link>
+                        </div>
+                    </motion.div>
 
-      {/* Space Weather Intelligence Section */}
-      <section className="py-24 bg-[#08080c]">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Space Weather Intelligence
-            </h2>
-            <p className="text-gray-400">
-              Our API powers the grounding and space experts for western infrastructure.
-            </p>
-          </motion.div>
-          
-          <motion.div 
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-          >
-            {[
-              {
-                icon: Shield,
-                title: "Enterprise-first Reliability",
-                description: "Each API request backed by real-time validation. 90-99% uptime with redundant tele-streams from NASA.",
-                color: "purple"
-              },
-              {
-                icon: Clock,
-                title: "10-Minute Updates",
-                description: "Every 600 seconds. Cleaner threshold APIs. No per-seat pricing.",
-                color: "cyan"
-              },
-              {
-                icon: Globe,
-                title: "Global Aviation Safety",
-                description: "Route planning APIs for 40,000ft+ decisions. Real-time HF radio blackout alerts.",
-                color: "emerald"
-              },
-              {
-                icon: Code,
-                title: "Developer-First",
-                description: "TypeScript SDK. Python client. Webhook integrations. GraphQL playground.",
-                color: "amber"
-              }
-            ].map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                variants={fadeInUp}
-                className="bg-[#12121a] border border-[#2a2a3a] rounded-xl p-6 hover:border-purple-500/50 transition-colors"
-              >
-                <div className={`w-10 h-10 rounded-lg bg-${feature.color}-600/20 flex items-center justify-center mb-4`}>
-                  <feature.icon className={`w-5 h-5 text-${feature.color}-400`} />
-                </div>
-                <h3 className="text-white font-semibold mb-2">{feature.title}</h3>
-                <p className="text-sm text-gray-500">{feature.description}</p>
-                <Link href="#" className="inline-flex items-center text-sm text-purple-400 hover:text-purple-300 mt-4">
-                  <span>View docs</span>
-                  <ExternalLink className="w-3 h-3 ml-1" />
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+                    {/* 3D Dashboard Card */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 40, rotateX: 10 }}
+                        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                        transition={{ duration: 1, delay: 0.2 }}
+                    >
+                        <HeroCard isDark={isDark} />
+                    </motion.div>
 
-      {/* Neural Network Section */}
-      <section className="py-24 bg-gradient-to-b from-[#0a0a0f] to-[#0d0d15]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <p className="text-cyan-400 text-sm font-medium tracking-wider uppercase mb-4">
-                Advanced AI Architecture
-              </p>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                <span className="text-white">The Neural Network</span>
-                <br />
-                <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                  Behind the Forecast.
-                </span>
-              </h2>
-              <p className="text-gray-400 mb-8">
-                Surya-1.0 is trained on 40 years of NASA SDO imagery. It uses a 
-                multi-modal transformer, identifies flares in about entire segments and 
-                responds under 50ms in 8 out of 10 runs.
-              </p>
-              
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <Check className="w-5 h-5 text-emerald-400" />
-                  <span className="text-gray-300">72% Accuracy on X-Class Flares</span>
+                    {/* Trusted By */}
+                    <div className="mt-24">
+                        <p className={`text-xs uppercase tracking-[0.2em] mb-10 font-semibold ${isDark ? 'text-gray-500' : 'text-gray-400'
+                            }`}>
+                            TRUSTED BY GLOBAL SATELLITE STATIONS
+                        </p>
+                        <div className={`flex flex-wrap justify-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500 ${isDark ? 'text-gray-500' : 'text-gray-400'
+                            }`}>
+                            <div className={`flex items-center space-x-2 text-xl font-bold font-serif transition-colors ${isDark ? 'hover:text-blue-400' : 'hover:text-blue-600'
+                                }`}>
+                                <Satellite className="w-6 h-6" />
+                                <span>NASA</span>
+                            </div>
+                            <div className={`flex items-center space-x-2 text-xl font-bold transition-colors ${isDark ? 'hover:text-white' : 'hover:text-gray-900'
+                                }`}>
+                                <Zap className="w-6 h-6" />
+                                <span>SPACEX</span>
+                            </div>
+                            <div className={`flex items-center space-x-2 text-xl font-bold font-mono transition-colors ${isDark ? 'hover:text-orange-400' : 'hover:text-orange-600'
+                                }`}>
+                                <Globe className="w-6 h-6" />
+                                <span>ISRO</span>
+                            </div>
+                            <div className={`flex items-center space-x-2 text-xl font-bold transition-colors ${isDark ? 'hover:text-amber-400' : 'hover:text-amber-500'
+                                }`}>
+                                <Shield className="w-6 h-6" />
+                                <span>AWS</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <Check className="w-5 h-5 text-emerald-400" />
-                  <span className="text-gray-300">94% mAP Precision, FRCNN</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Check className="w-5 h-5 text-emerald-400" />
-                  <span className="text-gray-300">Full Spectrum Analysis</span>
-                </div>
-              </div>
-            </motion.div>
-            
-            {/* 1.2B Parameters Visualization */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="relative flex items-center justify-center"
-            >
-              <div className="relative w-64 h-64">
-                {/* Outer ring */}
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="none"
-                    stroke="#1a1a24"
-                    strokeWidth="8"
-                  />
-                  <motion.circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="none"
-                    stroke="url(#gradient)"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                    strokeDasharray="283"
-                    initial={{ strokeDashoffset: 283 }}
-                    whileInView={{ strokeDashoffset: 28 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                  />
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#06b6d4" />
-                      <stop offset="100%" stopColor="#8b5cf6" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                
-                {/* Center text */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-5xl font-bold text-white">1.2B</span>
-                  <span className="text-sm text-gray-500 mt-1">Parameters</span>
-                </div>
-              </div>
-              
-              {/* Glow */}
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 rounded-full blur-3xl" />
-            </motion.div>
-          </div>
-        </div>
-      </section>
+            </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-[#0a0a0f]">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-              Ready to Integrate?
-            </h2>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link 
-                href="/auth/signup"
-                className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 rounded-lg font-medium flex items-center space-x-2 transition-all"
-              >
-                <span>Start Free Trial</span>
-              </Link>
-              <Link 
-                href="/docs"
-                className="px-8 py-4 border border-gray-700 hover:border-gray-600 rounded-lg font-medium text-gray-300 hover:text-white transition-all"
-              >
-                Read Documentation
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+            {/* Real-time Monitoring Section */}
+            <section id="features" className={`py-24 px-6 border-t ${isDark ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-100'
+                }`}>
+                <div className="max-w-6xl mx-auto">
+                    <div className="grid md:grid-cols-2 gap-20 items-center">
+                        {/* Sun Visualization */}
+                        <motion.div
+                            className={`flex justify-center rounded-3xl p-12 ${isDark ? 'bg-orange-950/30' : 'bg-orange-50/50'
+                                }`}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                        >
+                            <SunAnimation />
+                        </motion.div>
 
-      {/* Footer */}
-      <footer className="py-12 bg-[#08080c] border-t border-[#1a1a24]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-8">
-            {/* Logo */}
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">Z</span>
+                        {/* Content */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                        >
+                            <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 ${isDark ? 'bg-purple-900/50 text-purple-400' : 'bg-purple-50 text-purple-600'
+                                }`}>
+                                LIVE MONITORING
+                            </div>
+                            <h2 className={`text-4xl md:text-5xl font-light mb-6 leading-tight ${isDark ? 'text-white' : 'text-gray-900'
+                                }`}>
+                                <span className="font-serif italic">Real-time Monitoring,</span>
+                                <br />
+                                <span className="font-sans font-bold">simplified.</span>
+                            </h2>
+                            <p className={`text-lg mb-8 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                Access AI-powered analysis of solar imagery in milliseconds.
+                                Our pipeline processes complex magnetogram data into actionable
+                                insights for your mission control team.
+                            </p>
+
+                            <div className="space-y-6">
+                                {[
+                                    "Sub-second latency updates",
+                                    "Global observatory integration",
+                                    "Automated anomaly detection"
+                                ].map((item, i) => (
+                                    <motion.div
+                                        key={i}
+                                        className="flex items-center space-x-4"
+                                        initial={{ opacity: 0, x: 10 }}
+                                        whileInView={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                        viewport={{ once: true }}
+                                    >
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-green-900/50' : 'bg-green-100'
+                                            }`}>
+                                            <Check className={`w-3.5 h-3.5 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                                        </div>
+                                        <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{item}</span>
+                                    </motion.div>
+                                ))}
+                            </div>
+
+                            <Link
+                                href="/auth/signup"
+                                className={`inline-flex items-center mt-10 font-semibold border-b-2 pb-1 transition-all ${isDark
+                                        ? 'text-white border-white hover:text-purple-400 hover:border-purple-400'
+                                        : 'text-gray-900 border-gray-900 hover:text-purple-600 hover:border-purple-600'
+                                    }`}
+                            >
+                                Explore monitoring tools
+                                <ArrowRight className="w-4 h-4 ml-2" />
+                            </Link>
+                        </motion.div>
+                    </div>
                 </div>
-                <span className="text-white font-semibold text-lg">ZERO-COMP</span>
-              </div>
-              <p className="text-sm text-gray-500">
-                Enterprise solar flare prediction API powered by NASA-IBM Surya-1.0.
-              </p>
-            </div>
-            
-            {/* Product */}
-            <div>
-              <h4 className="text-white font-medium mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
-                <li><Link href="/docs" className="hover:text-white transition-colors">API Docs</Link></li>
-                <li><Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Changelog</Link></li>
-              </ul>
-            </div>
-            
-            {/* Resources */}
-            <div>
-              <h4 className="text-white font-medium mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><Link href="#" className="hover:text-white transition-colors">Documentation</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">API Reference</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Status Page</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">GitHub</Link></li>
-              </ul>
-            </div>
-            
-            {/* Solar Weather */}
-            <div>
-              <h4 className="text-white font-medium mb-4">Solar Weather & APIs</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><Link href="#" className="hover:text-white transition-colors">Real-time Data</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Historical Archive</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Webhooks</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">SDKs</Link></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="mt-12 pt-8 border-t border-[#1a1a24] text-center text-sm text-gray-600">
-            © 2026 ZERO-COMP Enterprise. All rights reserved.
-          </div>
+            </section>
+
+            {/* Predictive Analytics Section */}
+            <section id="analytics" className={`py-24 px-6 ${isDark ? 'bg-[#0A0A0F]' : 'bg-[#FAFAFA]'}`}>
+                <div className="max-w-6xl mx-auto">
+                    <div className="grid md:grid-cols-2 gap-20 items-center">
+                        {/* Content */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <h2 className={`text-4xl md:text-5xl font-light mb-6 leading-tight ${isDark ? 'text-white' : 'text-gray-900'
+                                }`}>
+                                <span className="font-serif italic">Predictive Analytics that</span>
+                                <br />
+                                <span className={`font-sans font-bold ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>see the future.</span>
+                            </h2>
+                            <p className={`text-lg mb-8 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                Don&apos;t just react to solar storms. Predict them. Our transformer models
+                                identify pre-flare magnetic configurations 2 hours before eruption.
+                            </p>
+
+                            <div className={`p-8 rounded-2xl border shadow-xl mb-8 ${isDark
+                                    ? 'bg-gray-800/50 border-gray-700 shadow-purple-500/5'
+                                    : 'bg-white border-gray-100 shadow-purple-900/5'
+                                }`}>
+                                <div className="flex items-start space-x-4">
+                                    <div className="w-1 bg-purple-500 h-16 rounded-full"></div>
+                                    <div>
+                                        <p className={`text-lg font-medium italic ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                                            &quot;The predictive accuracy of ZERO-COMP has saved our constellation
+                                            from 3 potential outages this past year alone.&quot;
+                                        </p>
+                                        <div className="mt-4 flex items-center space-x-3">
+                                            <div className={`w-8 h-8 rounded-full ${isDark ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                                            <div className="text-sm">
+                                                <span className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Dr. Sarah Chen</span>
+                                                <span className={`mx-2 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>|</span>
+                                                <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Orbital Dynamics</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Animated Chart Card */}
+                        <motion.div
+                            className={`rounded-3xl p-8 shadow-2xl border ${isDark
+                                    ? 'bg-gray-900 border-gray-700'
+                                    : 'bg-white border-gray-100'
+                                }`}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            whileHover={{ y: -5 }}
+                            transition={{ duration: 0.4 }}
+                            viewport={{ once: true }}
+                        >
+                            <div className="flex items-center justify-between mb-8">
+                                <div>
+                                    <div className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-gray-500' : 'text-gray-400'
+                                        }`}>Forecast Accuracy</div>
+                                    <div className={`text-3xl font-bold mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>94.8%</div>
+                                </div>
+                                <div className={`px-3 py-1 text-xs font-bold rounded-full ${isDark ? 'bg-white text-gray-900' : 'bg-black text-white'
+                                    }`}>V1.0 MODEL</div>
+                            </div>
+
+                            <div className="flex items-end justify-between h-64 gap-4">
+                                {[45, 60, 52, 75, 95].map((height, i) => (
+                                    <motion.div
+                                        key={i}
+                                        className={`w-full rounded-t-xl relative overflow-hidden group ${isDark ? 'bg-purple-900/30' : 'bg-purple-100'
+                                            }`}
+                                        initial={{ height: 0 }}
+                                        whileInView={{ height: `${height}%` }}
+                                        transition={{ duration: 1, delay: i * 0.1 }}
+                                        viewport={{ once: true }}
+                                    >
+                                        {/* Hover effect bar */}
+                                        <div className={`absolute bottom-0 left-0 w-full bg-purple-600 transition-all duration-300 ${i === 4 ? 'h-full' : 'h-0 group-hover:h-full opacity-50'}`} />
+
+                                        {/* Tooltip for last item */}
+                                        {i === 4 && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className={`absolute top-4 left-1/2 -translate-x-1/2 text-xs font-bold px-2 py-1 rounded whitespace-nowrap ${isDark ? 'bg-white text-gray-900' : 'bg-black text-white'
+                                                    }`}
+                                            >
+                                                Peak
+                                            </motion.div>
+                                        )}
+                                    </motion.div>
+                                ))}
+                            </div>
+                            <div className={`flex justify-between mt-4 text-xs font-medium uppercase ${isDark ? 'text-gray-500' : 'text-gray-400'
+                                }`}>
+                                <span>Q1</span>
+                                <span>Q2</span>
+                                <span>Q3</span>
+                                <span>Q4</span>
+                                <span>Current</span>
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Integrations Section */}
+            <section className={`py-24 overflow-hidden ${isDark ? 'bg-[#0A0A0F]' : 'bg-gray-50'}`}>
+                <div className="max-w-7xl mx-auto px-6 text-center mb-16">
+                    <h2 className={`text-4xl md:text-5xl font-light mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        <span className="font-serif italic">Instant integration</span>
+                        <br />
+                        <span className="font-sans font-bold">with your stack</span>
+                    </h2>
+                    <p className={`max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Out-of-the-box connectors and flexible APIs make setup a breeze.
+                    </p>
+                </div>
+
+                <Integrations isDark={isDark} />
+            </section>
+
+            {/* FAQ Section */}
+            <section className={`py-24 px-6 ${isDark ? 'bg-gray-900/50' : 'bg-white'}`}>
+                <div className="max-w-3xl mx-auto">
+                    <div className="text-center mb-16">
+                        <h2 className={`text-4xl font-serif italic mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            Frequently Asked Questions
+                        </h2>
+                    </div>
+
+                    <div className={`rounded-3xl p-8 md:p-12 ${isDark ? 'bg-gray-800/50' : 'bg-gray-50'
+                        }`}>
+                        {faqData.map((item, index) => (
+                            <FAQItem key={index} question={item.question} answer={item.answer} isDark={isDark} />
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Getting Started CTA */}
+            <section className={`py-32 px-6 text-center ${isDark ? 'bg-[#0A0A0F]' : 'bg-[#FAFAFA]'}`}>
+                <div className="max-w-3xl mx-auto">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                    >
+                        <h2 className={`text-5xl md:text-6xl font-serif italic mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            Getting started is easy.
+                        </h2>
+                        <p className={`text-xl mb-10 max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                            Connect ZERO-COMP to your infrastructure and do more with it immediately.
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <Link
+                                href="/auth/signup"
+                                className={`px-8 py-4 rounded-xl font-bold text-lg transition-all hover:-translate-y-1 shadow-xl ${isDark
+                                        ? 'bg-white text-gray-900 hover:bg-gray-100'
+                                        : 'bg-black text-white hover:bg-gray-800'
+                                    }`}
+                            >
+                                Get started for free
+                            </Link>
+                            <Link
+                                href="/contact"
+                                className={`px-8 py-4 rounded-xl font-bold text-lg transition-all ${isDark
+                                        ? 'bg-gray-800 border border-gray-700 text-white hover:bg-gray-700'
+                                        : 'bg-white border border-gray-200 text-gray-900 hover:bg-gray-50'
+                                    }`}
+                            >
+                                Talk to us
+                            </Link>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className={`border-t pt-20 pb-10 px-6 ${isDark ? 'bg-[#0A0A0F] border-gray-800' : 'bg-white border-gray-100'
+                }`}>
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid md:grid-cols-4 gap-12 mb-20">
+                        <div className="col-span-1 md:col-span-1">
+                            <div className="flex items-center space-x-2 mb-6">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? 'bg-white' : 'bg-gray-900'
+                                    }`}>
+                                    <span className={`font-bold text-sm ${isDark ? 'text-gray-900' : 'text-white'}`}>Z</span>
+                                </div>
+                                <span className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>ZERO-COMP</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 className={`font-bold mb-6 text-sm uppercase tracking-wider ${isDark ? 'text-white' : 'text-gray-900'
+                                }`}>Product</h4>
+                            <ul className={`space-y-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Features</Link></li>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Integrations</Link></li>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Pricing</Link></li>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Changelog</Link></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className={`font-bold mb-6 text-sm uppercase tracking-wider ${isDark ? 'text-white' : 'text-gray-900'
+                                }`}>Resources</h4>
+                            <ul className={`space-y-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Documentation</Link></li>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">API Reference</Link></li>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Community</Link></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className={`font-bold mb-6 text-sm uppercase tracking-wider ${isDark ? 'text-white' : 'text-gray-900'
+                                }`}>Company</h4>
+                            <ul className={`space-y-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">About</Link></li>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Blog</Link></li>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Careers</Link></li>
+                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Contact</Link></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className={`flex flex-col md:flex-row items-center justify-between pt-8 border-t text-sm ${isDark ? 'border-gray-800 text-gray-500' : 'border-gray-100 text-gray-400'
+                        }`}>
+                        <div>© 2026 ZERO-COMP Inc.</div>
+                        <div className="flex space-x-6 mt-4 md:mt-0">
+                            <Link href="#" className={`transition-colors ${isDark ? 'hover:text-white' : 'hover:text-gray-900'}`}>Privacy Policy</Link>
+                            <Link href="#" className={`transition-colors ${isDark ? 'hover:text-white' : 'hover:text-gray-900'}`}>Terms of Service</Link>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+            {/* Proximity Blur Effect - Final Element */}
+            <ProximityBlur />
         </div>
-      </footer>
-    </div>
-  )
+    )
 }
