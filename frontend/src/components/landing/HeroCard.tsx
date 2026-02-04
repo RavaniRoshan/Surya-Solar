@@ -77,10 +77,10 @@ export function HeroCard({ isDark = false }: HeroCardProps) {
                     <div className={`rounded-2xl p-6 min-h-[220px] relative overflow-hidden group ${isDark ? 'bg-gray-800' : 'bg-gray-50'
                         }`}>
                         {/* Animated Chart Line */}
-                        <svg viewBox="0 0 300 150" className="w-full h-full absolute inset-0 text-purple-500">
+                        <svg viewBox="0 0 300 150" className="w-full h-full absolute inset-0 text-orange-500">
                             <motion.path
                                 d="M0,100 C50,100 50,50 100,50 C150,50 150,120 200,80 C250,40 250,90 300,60 L300,150 L0,150 Z"
-                                fill={isDark ? "rgba(147, 51, 234, 0.2)" : "rgba(147, 51, 234, 0.1)"}
+                                fill={isDark ? "rgba(249, 115, 22, 0.2)" : "rgba(249, 115, 22, 0.1)"}
                             />
                             <motion.path
                                 d="M0,100 C50,100 50,50 100,50 C150,50 150,120 200,80 C250,40 250,90 300,60"
@@ -96,13 +96,13 @@ export function HeroCard({ isDark = false }: HeroCardProps) {
                         {/* Floating details on hover */}
                         <motion.div
                             className={`absolute top-1/2 left-1/2 px-4 py-2 rounded-lg shadow-lg border ${isDark
-                                    ? 'bg-gray-900 border-purple-500/30'
-                                    : 'bg-white border-purple-100'
+                                    ? 'bg-gray-900 border-orange-500/30'
+                                    : 'bg-white border-orange-100'
                                 }`}
                             style={{ x: "-50%", y: "-50%", translateZ: 50 }}
                         >
                             <div className={`text-xs uppercase ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Current Peak</div>
-                            <div className="text-2xl font-bold text-purple-500">X-1.4</div>
+                            <div className="text-2xl font-bold text-orange-500">X-1.4</div>
                         </motion.div>
                     </div>
 
@@ -164,9 +164,9 @@ export function HeroCard({ isDark = false }: HeroCardProps) {
                             whileHover={{ scale: 1.05, translateZ: 20 }}
                         >
                             <div className="flex items-center space-x-3">
-                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-purple-900/50' : 'bg-purple-100'
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-amber-900/50' : 'bg-amber-100'
                                     }`}>
-                                    <Zap className={`w-5 h-5 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
+                                    <Zap className={`w-5 h-5 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} />
                                 </div>
                                 <div>
                                     <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>KP Index</div>
@@ -174,7 +174,7 @@ export function HeroCard({ isDark = false }: HeroCardProps) {
                                 </div>
                             </div>
                             <div className={`relative w-16 h-1 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                                <div className="absolute top-0 left-0 h-full w-[70%] bg-purple-500 rounded-full"></div>
+                                <div className="absolute top-0 left-0 h-full w-[70%] bg-amber-500 rounded-full"></div>
                             </div>
                         </motion.div>
                     </div>
@@ -182,7 +182,7 @@ export function HeroCard({ isDark = false }: HeroCardProps) {
             </div>
 
             {/* Decorative Glow */}
-            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] blur-[100px] -z-10 pointer-events-none ${isDark ? 'bg-purple-600/20' : 'bg-purple-500/10'
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] blur-[100px] -z-10 pointer-events-none ${isDark ? 'bg-orange-600/20' : 'bg-orange-500/10'
                 }`} />
         </motion.div>
     )

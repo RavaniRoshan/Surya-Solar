@@ -50,20 +50,20 @@ function FAQItem({ question, answer, isDark }: { question: string; answer: strin
         <div className={`border-b last:border-0 ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full py-6 flex items-center justify-between text-left transition-colors group ${isDark ? 'hover:text-purple-400' : 'hover:text-purple-600'
+                className={`w-full py-6 flex items-center justify-between text-left transition-colors group ${isDark ? 'hover:text-orange-400' : 'hover:text-orange-600'
                     }`}
             >
                 <span className={`font-medium text-lg transition-colors ${isDark
-                        ? 'text-white group-hover:text-purple-400'
-                        : 'text-gray-900 group-hover:text-purple-600'
+                        ? 'text-white group-hover:text-orange-400'
+                        : 'text-gray-900 group-hover:text-orange-600'
                     }`}>{question}</span>
                 <motion.div
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
                 >
                     <ChevronDown className={`w-5 h-5 ${isDark
-                            ? 'text-gray-500 group-hover:text-purple-400'
-                            : 'text-gray-400 group-hover:text-purple-600'
+                            ? 'text-gray-500 group-hover:text-orange-400'
+                            : 'text-gray-400 group-hover:text-orange-600'
                         }`} />
                 </motion.div>
             </button>
@@ -93,8 +93,8 @@ export default function Home() {
 
     return (
         <div className={`min-h-screen font-sans transition-colors duration-300 ${isDark
-                ? 'bg-[#0A0A0F] text-white selection:bg-purple-900 selection:text-purple-100'
-                : 'bg-[#FAFAFA] text-gray-900 selection:bg-purple-100 selection:text-purple-900'
+                ? 'bg-[#0A0A0F] text-white selection:bg-orange-900 selection:text-orange-100'
+                : 'bg-[#FAFAFA] text-gray-900 selection:bg-orange-100 selection:text-orange-900'
             }`}>
             <Navbar isDark={isDark} onThemeToggle={toggleTheme} />
 
@@ -109,7 +109,8 @@ export default function Home() {
                         <h1 className="text-5xl md:text-7xl font-light mb-8 leading-tight">
                             <span className={`font-serif italic ${isDark ? 'text-white' : 'text-gray-900'}`}>The Mission Control for</span>
                             <br />
-                            <span className={`font-sans font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Solar Weather</span>
+                            <span className={`font-sans font-bold bg-clip-text text-transparent bg-gradient-to-r ${isDark ? 'from-orange-400 via-amber-500 to-yellow-400' : 'from-orange-500 via-amber-600 to-yellow-500'
+                                }`}>Solar Weather</span>
                         </h1>
 
                         <p className={`text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'
@@ -122,7 +123,7 @@ export default function Home() {
                             <Link
                                 href="/auth/signup"
                                 className={`px-8 py-4 rounded-xl font-medium transition-all hover:scale-105 shadow-lg ${isDark
-                                        ? 'bg-white hover:bg-gray-100 text-gray-900 shadow-white/10'
+                                        ? 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white shadow-orange-500/20'
                                         : 'bg-gray-900 hover:bg-black text-white shadow-gray-200'
                                     }`}
                             >
@@ -206,7 +207,7 @@ export default function Home() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
                         >
-                            <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 ${isDark ? 'bg-purple-900/50 text-purple-400' : 'bg-purple-50 text-purple-600'
+                            <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 ${isDark ? 'bg-orange-900/50 text-orange-400' : 'bg-orange-100 text-orange-600'
                                 }`}>
                                 LIVE MONITORING
                             </div>
@@ -248,8 +249,8 @@ export default function Home() {
                             <Link
                                 href="/auth/signup"
                                 className={`inline-flex items-center mt-10 font-semibold border-b-2 pb-1 transition-all ${isDark
-                                        ? 'text-white border-white hover:text-purple-400 hover:border-purple-400'
-                                        : 'text-gray-900 border-gray-900 hover:text-purple-600 hover:border-purple-600'
+                                        ? 'text-white border-white hover:text-orange-400 hover:border-orange-400'
+                                        : 'text-gray-900 border-gray-900 hover:text-orange-600 hover:border-orange-600'
                                     }`}
                             >
                                 Explore monitoring tools
@@ -274,7 +275,8 @@ export default function Home() {
                                 }`}>
                                 <span className="font-serif italic">Predictive Analytics that</span>
                                 <br />
-                                <span className={`font-sans font-bold ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>see the future.</span>
+                                <span className={`font-sans font-bold bg-clip-text text-transparent bg-gradient-to-r ${isDark ? 'from-orange-400 to-amber-500' : 'from-orange-600 to-amber-600'
+                                    }`}>see the future.</span>
                             </h2>
                             <p className={`text-lg mb-8 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                 Don&apos;t just react to solar storms. Predict them. Our transformer models
@@ -282,11 +284,11 @@ export default function Home() {
                             </p>
 
                             <div className={`p-8 rounded-2xl border shadow-xl mb-8 ${isDark
-                                    ? 'bg-gray-800/50 border-gray-700 shadow-purple-500/5'
-                                    : 'bg-white border-gray-100 shadow-purple-900/5'
+                                    ? 'bg-gray-800/50 border-gray-700 shadow-orange-500/5'
+                                    : 'bg-white border-gray-100 shadow-orange-900/5'
                                 }`}>
                                 <div className="flex items-start space-x-4">
-                                    <div className="w-1 bg-purple-500 h-16 rounded-full"></div>
+                                    <div className={`w-1 h-16 rounded-full ${isDark ? 'bg-orange-500' : 'bg-orange-500'}`}></div>
                                     <div>
                                         <p className={`text-lg font-medium italic ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
                                             &quot;The predictive accuracy of ZERO-COMP has saved our constellation
@@ -331,7 +333,7 @@ export default function Home() {
                                 {[45, 60, 52, 75, 95].map((height, i) => (
                                     <motion.div
                                         key={i}
-                                        className={`w-full rounded-t-xl relative overflow-hidden group ${isDark ? 'bg-purple-900/30' : 'bg-purple-100'
+                                        className={`w-full rounded-t-xl relative overflow-hidden group ${isDark ? 'bg-orange-900/30' : 'bg-orange-100'
                                             }`}
                                         initial={{ height: 0 }}
                                         whileInView={{ height: `${height}%` }}
@@ -339,7 +341,8 @@ export default function Home() {
                                         viewport={{ once: true }}
                                     >
                                         {/* Hover effect bar */}
-                                        <div className={`absolute bottom-0 left-0 w-full bg-purple-600 transition-all duration-300 ${i === 4 ? 'h-full' : 'h-0 group-hover:h-full opacity-50'}`} />
+                                        <div className={`absolute bottom-0 left-0 w-full transition-all duration-300 ${isDark ? 'bg-orange-600' : 'bg-orange-500'
+                                            } ${i === 4 ? 'h-full' : 'h-0 group-hover:h-full opacity-50'}`} />
 
                                         {/* Tooltip for last item */}
                                         {i === 4 && (
@@ -420,7 +423,7 @@ export default function Home() {
                             <Link
                                 href="/auth/signup"
                                 className={`px-8 py-4 rounded-xl font-bold text-lg transition-all hover:-translate-y-1 shadow-xl ${isDark
-                                        ? 'bg-white text-gray-900 hover:bg-gray-100'
+                                        ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white hover:from-orange-400 hover:to-amber-500'
                                         : 'bg-black text-white hover:bg-gray-800'
                                     }`}
                             >
@@ -459,10 +462,10 @@ export default function Home() {
                             <h4 className={`font-bold mb-6 text-sm uppercase tracking-wider ${isDark ? 'text-white' : 'text-gray-900'
                                 }`}>Product</h4>
                             <ul className={`space-y-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Features</Link></li>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Integrations</Link></li>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Pricing</Link></li>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Changelog</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">Features</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">Integrations</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">Pricing</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">Changelog</Link></li>
                             </ul>
                         </div>
 
@@ -470,9 +473,9 @@ export default function Home() {
                             <h4 className={`font-bold mb-6 text-sm uppercase tracking-wider ${isDark ? 'text-white' : 'text-gray-900'
                                 }`}>Resources</h4>
                             <ul className={`space-y-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Documentation</Link></li>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">API Reference</Link></li>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Community</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">Documentation</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">API Reference</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">Community</Link></li>
                             </ul>
                         </div>
 
@@ -480,10 +483,10 @@ export default function Home() {
                             <h4 className={`font-bold mb-6 text-sm uppercase tracking-wider ${isDark ? 'text-white' : 'text-gray-900'
                                 }`}>Company</h4>
                             <ul className={`space-y-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">About</Link></li>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Blog</Link></li>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Careers</Link></li>
-                                <li><Link href="#" className="hover:text-purple-500 transition-colors">Contact</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">About</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">Blog</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">Careers</Link></li>
+                                <li><Link href="#" className="hover:text-orange-500 transition-colors">Contact</Link></li>
                             </ul>
                         </div>
                     </div>

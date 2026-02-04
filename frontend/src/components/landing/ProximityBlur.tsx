@@ -1,86 +1,64 @@
 'use client'
 
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useState } from 'react'
+import Link from 'next/link'
 
 export function ProximityBlur() {
     const textRef = useRef<HTMLDivElement>(null)
     const [isHovered, setIsHovered] = useState(false)
-    const requestRef = useRef<number>(null)
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (!textRef.current) return
-
-            const rect = textRef.current.getBoundingClientRect()
-            const centerX = rect.left + rect.width / 2
-            const centerY = rect.top + rect.height / 2
-
-            const distance = Math.sqrt(
-                Math.pow(e.clientX - centerX, 2) +
-                Math.pow(e.clientY - centerY, 2)
-            )
-
-            // Calculate blur: 0px at 0 distance, 20px at > 400px distance
-            const maxDistance = 400
-            const maxBlur = 20
-
-            let blurAmount = 0
-            if (distance < maxDistance) {
-                blurAmount = (distance / maxDistance) * maxBlur
-            } else {
-                blurAmount = maxBlur
-            }
-
-            // Apply blur directly to style for performance
-            if (textRef.current && !textRef.current.dataset.hovered) {
-                textRef.current.style.filter = `blur(${blurAmount}px)`
-                textRef.current.style.opacity = Math.max(0.2, 1 - (blurAmount / maxBlur) * 0.5).toString()
-            }
-        }
-
-        const loop = () => {
-            // We can use this for smoother interpolation if needed, 
-            // but direct mouse mapping is usually responsive enough for this effect.
-            // For now, attaching directly to mousemove is efficient enough if we don't do heavy calc.
-        }
-
-        window.addEventListener('mousemove', handleMouseMove)
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove)
-        }
-    }, [])
 
     const handleMouseEnter = () => {
         setIsHovered(true)
-        if (textRef.current) {
-            textRef.current.dataset.hovered = "true"
-            textRef.current.style.filter = 'blur(0px)'
-            textRef.current.style.opacity = '1'
-        }
     }
 
     const handleMouseLeave = () => {
         setIsHovered(false)
-        if (textRef.current) {
-            delete textRef.current.dataset.hovered
-        }
     }
 
     return (
         <div className="w-full py-32 bg-black flex items-center justify-center overflow-hidden">
-            <div
-                ref={textRef}
-                className="relative cursor-pointer transition-colors duration-300"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-            >
-                <h2
-                    className={`text-8xl md:text-9xl font-sans font-bold tracking-tighter transition-all duration-300 ${isHovered ? 'text-purple-500 scale-105' : 'text-white'
-                        }`}
+            <Link href="/dashboard">
+                <div
+                    ref={textRef}
+                    className="relative cursor-pointer"
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                 >
-                    {isHovered ? 'ENTER SYSTEM' : 'ZERO-COMP'}
-                </h2>
-            </div>
+                    {/* Background glow effect */}
+                    <div 
+                        className={`absolute inset-0 bg-gradient-to-r from-orange-500/20 via-amber-500/20 to-orange-500/20 blur-3xl transition-opacity duration-700 ${
+                            isHovered ? 'opacity-100' : 'opacity-0'
+                        }`}
+                    />
+                    
+                    <h2
+                        className={`text-7xl md:text-9xl font-sans font-bold tracking-tighter transition-all duration-500 ease-out relative ${
+                            isHovered 
+                                ? 'text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-500 to-orange-400 scale-105' 
+                                : 'text-white'
+                        }`}
+                        style={{
+                            filter: isHovered ? 'blur(0px)' : 'blur(0px)',
+                        }}
+                    >
+                        {/* Show text that transitions smoothly */}
+                        <span 
+                            className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${
+                                isHovered ? 'opacity-0 blur-sm' : 'opacity-100 blur-0'
+                            }`}
+                        >
+                            ZERO-COMP
+                        </span>
+                        <span 
+                            className={`transition-all duration-500 ${
+                                isHovered ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'
+                            }`}
+                        >
+                            ENTER SYSTEM
+                        </span>
+                    </h2>
+                </div>
+            </Link>
         </div>
     )
 }

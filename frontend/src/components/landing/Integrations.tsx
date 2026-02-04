@@ -29,8 +29,8 @@ const integrations = [
         icon: Database,
         name: "Postgres Sync",
         desc: "Auto-archiving",
-        lightColor: "bg-purple-100 text-purple-600",
-        darkColor: "bg-purple-900/50 text-purple-400"
+        lightColor: "bg-yellow-100 text-yellow-600",
+        darkColor: "bg-yellow-900/50 text-yellow-400"
     },
     {
         icon: Cloud,
@@ -68,7 +68,7 @@ export function Integrations({ isDark = false }: IntegrationsProps) {
                     <motion.div
                         key={i}
                         className={`w-80 rounded-2xl border p-6 flex items-start space-x-4 transition-shadow cursor-pointer ${isDark
-                                ? 'bg-gray-900 border-gray-700 hover:shadow-xl hover:shadow-purple-500/10'
+                                ? 'bg-gray-900 border-gray-700 hover:shadow-xl hover:shadow-orange-500/10'
                                 : 'bg-white border-gray-100 hover:shadow-lg'
                             }`}
                         whileHover={{ scale: 1.02 }}

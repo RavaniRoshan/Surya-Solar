@@ -54,17 +54,17 @@ export function Navbar({ isDark = false, onThemeToggle }: NavbarProps) {
                                     >
                                         <div className="space-y-4">
                                             <div className="group cursor-pointer">
-                                                <div className={`text-sm font-semibold transition-colors ${isDark ? 'text-white group-hover:text-purple-400' : 'text-gray-900 group-hover:text-purple-600'
+                                                <div className={`text-sm font-semibold transition-colors ${isDark ? 'text-white group-hover:text-orange-400' : 'text-gray-900 group-hover:text-orange-600'
                                                     }`}>Grid Protection</div>
                                                 <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>For power distributors</div>
                                             </div>
                                             <div className="group cursor-pointer">
-                                                <div className={`text-sm font-semibold transition-colors ${isDark ? 'text-white group-hover:text-purple-400' : 'text-gray-900 group-hover:text-purple-600'
+                                                <div className={`text-sm font-semibold transition-colors ${isDark ? 'text-white group-hover:text-orange-400' : 'text-gray-900 group-hover:text-orange-600'
                                                     }`}>Satellite Ops</div>
                                                 <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Low latency telemetry</div>
                                             </div>
                                             <div className="group cursor-pointer">
-                                                <div className={`text-sm font-semibold transition-colors ${isDark ? 'text-white group-hover:text-purple-400' : 'text-gray-900 group-hover:text-purple-600'
+                                                <div className={`text-sm font-semibold transition-colors ${isDark ? 'text-white group-hover:text-orange-400' : 'text-gray-900 group-hover:text-orange-600'
                                                     }`}>Aviation Safety</div>
                                                 <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Route planning tools</div>
                                             </div>
@@ -97,12 +97,12 @@ export function Navbar({ isDark = false, onThemeToggle }: NavbarProps) {
                                     >
                                         <div className="space-y-4">
                                             <div className="group cursor-pointer">
-                                                <div className={`text-sm font-semibold transition-colors ${isDark ? 'text-white group-hover:text-purple-400' : 'text-gray-900 group-hover:text-purple-600'
+                                                <div className={`text-sm font-semibold transition-colors ${isDark ? 'text-white group-hover:text-orange-400' : 'text-gray-900 group-hover:text-orange-600'
                                                     }`}>Developer API</div>
                                                 <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>REST & GraphQL docs</div>
                                             </div>
                                             <div className="group cursor-pointer">
-                                                <div className={`text-sm font-semibold transition-colors ${isDark ? 'text-white group-hover:text-purple-400' : 'text-gray-900 group-hover:text-purple-600'
+                                                <div className={`text-sm font-semibold transition-colors ${isDark ? 'text-white group-hover:text-orange-400' : 'text-gray-900 group-hover:text-orange-600'
                                                     }`}>Enterprise</div>
                                                 <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Custom SLAs & Support</div>
                                             </div>
