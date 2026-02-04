@@ -50,11 +50,12 @@ export async function middleware(request: NextRequest) {
   )
 
   // Redirect to login if accessing protected route without authentication
-  if (isProtectedPath && !user) {
-    const redirectUrl = new URL('/auth/login', request.url)
-    redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
-    return NextResponse.redirect(redirectUrl)
-  }
+  // TEMPORARILY DISABLED FOR DEVELOPMENT - uncomment for production
+  // if (isProtectedPath && !user) {
+  //   const redirectUrl = new URL('/auth/login', request.url)
+  //   redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
+  //   return NextResponse.redirect(redirectUrl)
+  // }
 
   // Redirect to dashboard (or beta waiting) if authenticated user tries to access auth pages
   if (user && request.nextUrl.pathname.startsWith('/auth/')) {

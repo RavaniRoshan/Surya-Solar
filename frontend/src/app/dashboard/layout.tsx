@@ -2,63 +2,65 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import Sidebar from '@/components/dashboard/Sidebar'
-import { Search, User } from 'lucide-react'
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { user } = useAuth()
+  useAuth()
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
+    <div className="min-h-screen bg-[#0B1120]">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content Area */}
       <div className="ml-56">
         {/* Top Bar */}
-        <header className="h-14 bg-[#0a0a0f] border-b border-[#1a1a24] flex items-center justify-between px-6 sticky top-0 z-40">
-          {/* Status Indicators */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 px-3 py-1.5 bg-[#12121a] rounded-lg border border-[#2a2a3a]">
-              <div className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="text-xs text-gray-400">Status: <span className="text-emerald-400">Quiet</span></span>
-            </div>
-            <div className="flex items-center space-x-2 px-3 py-1.5 bg-[#12121a] rounded-lg border border-[#2a2a3a]">
-              <span className="text-xs text-gray-400">K-Index: <span className="text-purple-400">2</span></span>
-            </div>
-            <div className="flex items-center space-x-2 text-xs text-gray-500">
-              <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-              <span>L1 Node Active: 149.6M km</span>
-            </div>
+        <header className="h-16 bg-[#0B1120] border-b border-gray-800/50 flex items-center justify-between px-8 sticky top-0 z-40">
+          {/* Title */}
+          <div>
+            <h1 className="text-2xl font-bold text-white">Mission Control</h1>
+            <p className="text-xs text-gray-500 uppercase tracking-wider">SOLAR FLARE MONITORING SYSTEM</p>
           </div>
 
           {/* Right side */}
-          <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-500 hover:text-white transition-colors">
-              <Search className="w-4 h-4" />
-            </button>
+          <div className="flex items-center space-x-6">
+            {/* Solar Status */}
+            <div className="flex items-center space-x-4 px-4 py-2 bg-gray-800/30 rounded-xl border border-gray-700/50">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="text-emerald-400 text-sm font-medium">Normal Activity</span>
+              </div>
+              <div className="w-px h-4 bg-gray-700" />
+              <span className="text-gray-400 text-sm">Solar Status</span>
+            </div>
 
-            <div className="flex items-center space-x-3">
-              <div className="text-right">
-                <p className="text-sm text-white font-medium">
-                  {user?.email?.split('@')[0] || 'User'}
-                </p>
-                <p className="text-xs text-gray-500">SYSTEM ADMIN</p>
+            {/* Time */}
+            <div className="text-right">
+              <div className="text-xl font-mono text-white font-bold">
+                {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })} UTC
               </div>
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
-                <User className="w-4 h-4 text-white" />
-              </div>
+              <div className="text-xs text-gray-500 uppercase">SYSTEM SYNCHRONIZED</div>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
+        <main className="p-8">
           {children}
         </main>
+
+        {/* Footer */}
+        <footer className="px-8 py-4 border-t border-gray-800/50 flex items-center justify-between text-xs text-gray-600">
+          <div className="flex items-center space-x-8">
+            <span>ENCRYPTION: AES-256</span>
+            <span>UPTIME: 99.998%</span>
+            <span>NODE: US-EAST-CORE</span>
+          </div>
+          <span>© 2024 ZERO-COMP AEROSPACE</span>
+        </footer>
       </div>
     </div>
   )
